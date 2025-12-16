@@ -1,0 +1,59 @@
+<configuration>
+
+    <property name="LOG_PATH" value="logs"/>
+    <property name="LOG_PATTERN"
+              value="%d{dd-MM-yyyy HH:mm:ss} | %-5level | %logger | %msg%n"/>
+
+    <!-- LOG DE SISTEMA / APP -->
+    <appender name="APP_FILE"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+        <file>${LOG_PATH}/app-atual.txt</file>
+
+        <rollingPolicy
+                class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>
+                ${LOG_PATH}/app-%d{dd-MM-yyyy}.txt
+            </fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- LOG DE AUDITORIA / API -->
+    <appender name="AUDIT_FILE"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+        <file>${LOG_PATH}/audit-atual.txt</file>
+
+        <rollingPolicy
+                class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>
+                ${LOG_PATH}/audit-%d{dd-MM-yyyy}.txt
+            </fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>
+                %d{dd-MM-yyyy HH:mm:ss} | %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <!-- ROOT = SISTEMA -->
+    <root level="INFO">
+        <appender-ref ref="APP_FILE"/>
+    </root>
+
+    <!-- LOGGER DE AUDITORIA -->
+    <logger name="API_LOGGER"
+            level="INFO"
+            additivity="false">
+        <appender-ref ref="AUDIT_FILE"/>
+    </logger>
+
+</configuration>
