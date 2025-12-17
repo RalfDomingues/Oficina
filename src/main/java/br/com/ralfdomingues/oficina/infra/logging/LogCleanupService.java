@@ -2,7 +2,6 @@ package br.com.ralfdomingues.oficina.infra.logging;
 
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
-
 import java.io.IOException;
 import java.nio.file.*;
 import java.time.LocalDate;

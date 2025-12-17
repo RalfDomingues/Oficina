@@ -1,6 +1,5 @@
 package br.com.ralfdomingues.oficina.domain.servico.service;
 
-import br.com.ralfdomingues.oficina.domain.itemservico.entity.ItemServico;
 import br.com.ralfdomingues.oficina.domain.servico.dto.*;
 import br.com.ralfdomingues.oficina.domain.servico.entity.Servico;
 import br.com.ralfdomingues.oficina.exception.NotFoundException;
@@ -9,8 +8,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class ServicoService {

@@ -2,7 +2,6 @@ package br.com.ralfdomingues.oficina.domain.ordemservico.dto;
 
 import br.com.ralfdomingues.oficina.domain.ordemservico.entity.OrdemServico;
 import br.com.ralfdomingues.oficina.domain.ordemservico.enums.StatusOrdemServico;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 

@@ -1,6 +1,5 @@
 package br.com.ralfdomingues.oficina.repository.itemservico;
 
-import br.com.ralfdomingues.oficina.domain.dashboard.dto.OrdensPorMesDTO;
 import br.com.ralfdomingues.oficina.domain.dashboard.dto.ServicoMaisUsadoDTO;
 import br.com.ralfdomingues.oficina.domain.itemservico.entity.ItemServico;
 import org.springframework.data.domain.Page;

@@ -3,9 +3,6 @@ package br.com.ralfdomingues.oficina.domain.itemservico.entity;
 import br.com.ralfdomingues.oficina.domain.ordemservico.entity.OrdemServico;
 import br.com.ralfdomingues.oficina.domain.servico.entity.Servico;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.math.BigDecimal;

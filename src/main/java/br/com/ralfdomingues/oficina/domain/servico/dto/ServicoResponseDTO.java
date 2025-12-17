@@ -1,7 +1,6 @@
 package br.com.ralfdomingues.oficina.domain.servico.dto;
 
 import br.com.ralfdomingues.oficina.domain.servico.entity.Servico;
-
 import java.math.BigDecimal;
 
 public record ServicoResponseDTO(

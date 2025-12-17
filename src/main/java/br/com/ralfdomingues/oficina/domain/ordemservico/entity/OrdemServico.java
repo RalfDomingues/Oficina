@@ -5,7 +5,6 @@ import br.com.ralfdomingues.oficina.domain.ordemservico.enums.StatusOrdemServico
 import br.com.ralfdomingues.oficina.domain.veiculo.entity.Veiculo;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 

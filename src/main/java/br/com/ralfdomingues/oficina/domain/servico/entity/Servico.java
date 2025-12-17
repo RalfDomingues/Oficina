@@ -3,7 +3,6 @@ package br.com.ralfdomingues.oficina.domain.servico.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
-
 import java.math.BigDecimal;
 
 @Getter
