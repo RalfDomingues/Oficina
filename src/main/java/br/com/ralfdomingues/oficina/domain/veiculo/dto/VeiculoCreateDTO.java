@@ -3,6 +3,12 @@ package br.com.ralfdomingues.oficina.domain.veiculo.dto;
 import br.com.ralfdomingues.oficina.domain.veiculo.enums.TipoVeiculo;
 import jakarta.validation.constraints.*;
 
+/**
+ * DTO utilizado para criação de um veículo no sistema.
+ *
+ * <p>Responsável por receber os dados iniciais do veículo
+ * e associá-lo a um cliente existente.</p>
+ */
 public record VeiculoCreateDTO(
 
         @NotBlank

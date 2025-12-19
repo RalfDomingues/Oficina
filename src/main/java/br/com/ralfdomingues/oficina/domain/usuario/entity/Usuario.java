@@ -4,6 +4,13 @@ import br.com.ralfdomingues.oficina.domain.usuario.enums.PerfilUsuario;
 import jakarta.persistence.*;
 import lombok.*;
 
+
+/**
+ * Entidade de domínio que representa um usuário do sistema.
+ *
+ * <p>Responsável por armazenar dados de autenticação,
+ * autorização e estado do usuário.</p>
+ */
 @Entity
 @Table(
         name = "usuario",
@@ -28,8 +35,11 @@ public class Usuario {
     @Column(nullable = false, unique = true, length = 150)
     private String email;
 
+    /**
+     * Senha do usuário armazenada de forma criptografada (bcrypt).
+     */
     @Column(nullable = false)
-    private String senha; // bcrypt
+    private String senha;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)

@@ -6,19 +6,11 @@ import jakarta.persistence.*;
 import lombok.*;
 
 /**
- * Representa um veículo registrado na oficina.
+ * Entidade de domínio que representa um veículo registrado na oficina.
  *
- * <p>Todo veículo pertence a um {@link Cliente} e pode ser utilizado para abrir
- * ordens de serviço. O veículo é parte crucial do histórico de manutenções
- * e diagnósticos realizados.</p>
- *
- * <p>Regras importantes:
- * <ul>
- *     <li>A placa deve ser única e identificar o veículo.</li>
- *     <li>Um veículo não existe sem estar vinculado a um cliente.</li>
- *     <li>O tipo do veículo define se é carro, moto etc.</li>
- * </ul>
- * </p>
+ * <p>O veículo está sempre associado a um {@link Cliente}
+ * e é utilizado como base para abertura de ordens de serviço
+ * e histórico de manutenções.</p>
  */
 @Entity
 @Table(name = "veiculo")

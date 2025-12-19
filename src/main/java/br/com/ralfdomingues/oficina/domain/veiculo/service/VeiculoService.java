@@ -14,19 +14,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Serviço responsável pelas regras de negócio relacionadas à entidade {@link Veiculo}.
+ * Camada de serviço responsável pelas regras de negócio
+ * relacionadas à entidade {@link Veiculo}.
  *
- * <p>Centraliza operações de cadastro, atualização e consulta de veículos.
- * Também garante que regras essenciais sejam respeitadas — como a unicidade da
- * placa e a associação obrigatória a um cliente.</p>
- *
- * <p>Responsabilidades principais:
- * <ul>
- *     <li>Validar existência do cliente antes de cadastrar um veículo.</li>
- *     <li>Garantir que uma placa não seja cadastrada duas vezes.</li>
- *     <li>Controlar atualizações parciais do veículo.</li>
- * </ul>
- * </p>
+ * <p>Centraliza operações de cadastro, atualização,
+ * listagem e exclusão lógica de veículos.</p>
  */
 @Service
 @RequiredArgsConstructor
@@ -38,24 +30,19 @@ public class VeiculoService {
     /**
      * Cria um novo veículo associado a um cliente existente.
      *
-     * @param dto dados de entrada para criação
-     * @return representação do veículo criado
-     * @throws NotFoundException se o cliente informado não existir
-     * @throws BusinessException se a placa já estiver cadastrada
+     * @throws NotFoundException  caso o cliente não exista
+     * @throws BusinessException caso a placa já esteja cadastrada
      */
     @Transactional
     public VeiculoResponseDTO criar(VeiculoCreateDTO dto) {
 
-        // Regra: placa deve ser única
         if (veiculoRepository.existsByPlaca(dto.placa())) {
             throw new BusinessException("Já existe um veículo cadastrado com essa placa.");
         }
 
-        // Regra: o veículo não pode existir sem um cliente
         Cliente cliente = clienteRepository.findById(dto.clienteId())
                 .orElseThrow(() -> new NotFoundException("Cliente não encontrado."));
 
-        // Regra: o veículo não pode existir sem um cliente válido
         if (Boolean.FALSE.equals(cliente.getAtivo())) {
             throw new BusinessException("Não é possível cadastrar veículo para cliente inativo.");
         }
@@ -75,11 +62,17 @@ public class VeiculoService {
         return mapToDTO(salvo);
     }
 
+    /**
+     * Lista apenas veículos ativos de forma paginada.
+     */
     public Page<VeiculoResponseDTO> listar(Pageable pageable) {
         return veiculoRepository.findAllByAtivoTrue(pageable)
                 .map(VeiculoResponseDTO::new);
     }
 
+    /**
+     * Lista veículos ativos de um cliente específico.
+     */
     public Page<VeiculoResponseDTO> listarPorCliente(Long clienteId, Pageable pageable) {
         return veiculoRepository.findAllByCliente_IdAndAtivoTrue(clienteId, pageable)
                 .map(VeiculoResponseDTO::new);
@@ -87,11 +80,9 @@ public class VeiculoService {
 
 
     /**
-     * Retorna um veículo pelo seu ID.
+     * Recupera um veículo pelo identificador.
      *
-     * @param id identificador do veículo
-     * @return DTO com dados do veículo
-     * @throws NotFoundException se o veículo não existir
+     * @throws NotFoundException caso o veículo não exista
      */
     public VeiculoResponseDTO buscarPorId(Long id) {
         Veiculo veiculo = veiculoRepository.findById(id)
@@ -100,16 +91,9 @@ public class VeiculoService {
     }
 
     /**
-     * Atualiza informações do veículo.
+     * Atualiza parcialmente um veículo existente.
      *
-     * <p>Apenas campos não nulos no DTO serão atualizados. Isso evita sobrescrever
-     * dados desnecessariamente e permite atualizações parciais.</p>
-     *
-     * @param id  identificador do veículo
-     * @param dto dados a serem atualizados
-     * @return DTO atualizado
-     * @throws NotFoundException se o veículo não existir
-     * @throws BusinessException se a nova placa já estiver cadastrada
+     * @throws NotFoundException caso o veículo não exista
      */
     @Transactional
     public VeiculoResponseDTO atualizar(Long id, VeiculoUpdateDTO dto) {
@@ -126,6 +110,9 @@ public class VeiculoService {
         return mapToDTO(veiculoRepository.save(veiculo));
     }
 
+    /**
+     * Realiza exclusão lógica de um veículo.
+     */
     @Transactional
     public void deletar(Long id) {
         Veiculo veiculo = veiculoRepository.findById(id)
@@ -135,6 +122,10 @@ public class VeiculoService {
         veiculoRepository.save(veiculo);
     }
 
+    /**
+     * Centraliza a conversão da entidade {@link Veiculo}
+     * para {@link VeiculoResponseDTO}.
+     */
     private VeiculoResponseDTO mapToDTO(Veiculo veiculo) {
         return new VeiculoResponseDTO(
                 veiculo.getId(),
