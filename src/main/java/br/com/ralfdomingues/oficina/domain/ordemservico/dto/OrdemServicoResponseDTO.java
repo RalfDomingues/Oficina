@@ -5,6 +5,14 @@ import br.com.ralfdomingues.oficina.domain.ordemservico.enums.StatusOrdemServico
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * DTO de resposta para Ordens de Serviço.
+ *
+ * <p>
+ * Fornece todos os detalhes de uma ordem, incluindo cliente, veículo, status, descrição,
+ * valores e datas de abertura e conclusão.
+ * </p>
+ */
 public record OrdemServicoResponseDTO(
 
         Long id,
@@ -18,6 +26,10 @@ public record OrdemServicoResponseDTO(
         LocalDateTime dataConclusao
 
 ) {
+
+    /**
+     * Construtor que cria o DTO a partir da entidade {@link OrdemServico}.
+     */
     public OrdemServicoResponseDTO(OrdemServico os) {
         this(
                 os.getId(),

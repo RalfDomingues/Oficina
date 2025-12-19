@@ -12,91 +12,29 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 
 /**
- * =========================================================
- * CONFIGURAÇÃO DE SEGURANÇA – CONTROLE DE ACESSO POR PERFIL
- * =========================================================
- * <p>
- * O sistema utiliza autenticação baseada em JWT (stateless),
- * onde o acesso às APIs é controlado por perfil de usuário,
- * refletindo as responsabilidades reais dentro de uma oficina mecânica.
- * <p>
- * Perfis existentes:
- * <p>
- * ADMIN
- * - Representa o dono ou diretor da oficina.
- * - Possui acesso total ao sistema, incluindo funções administrativas
- * e de gestão estratégica.
- * <p>
- * SECRETARIA
- * - Representa o papel administrativo operacional.
- * - Responsável por cadastros, organização e acompanhamento de serviços.
- * <p>
- * MECANICO
- * - Representa o papel técnico.
- * - Responsável pela execução e atualização das ordens de serviço.
- * <p>
- * ---------------------------------------------------------
- * MAPEAMENTO DE ACESSO POR PATH
- * ---------------------------------------------------------
- * <p>
- * /auth/**
- * - Público
- * - Utilizado para autenticação (login e logout).
- * - Não exige token JWT.
- * <p>
- * /usuarios/**
- * - ADMIN
- * - Justificativa:
- * Gerenciamento de usuários é uma função administrativa sensível,
- * restrita à gestão da oficina.
- * <p>
- * /clientes/**
- * - ADMIN, SECRETARIA
- * - Justificativa:
- * Cadastro e manutenção de clientes são tarefas administrativas,
- * não relacionadas à execução técnica dos serviços.
- * <p>
- * /veiculos/**
- * - ADMIN, SECRETARIA
- * - Justificativa:
- * Veículos fazem parte do cadastro operacional da oficina,
- * sendo mantidos pela área administrativa.
- * <p>
- * /servicos/**
- * - ADMIN: CRUD completo
- * - SECRETARIA, MECANICO: apenas leitura (GET)
- * - Justificativa:
- * A definição de serviços, preços e descrições é uma decisão
- * administrativa, enquanto os demais perfis apenas consultam
- * essas informações.
- * <p>
- * /itens-servico/**
- * - ADMIN, SECRETARIA: criação e manutenção
- * - MECANICO: leitura
- * - Justificativa:
- * Itens de serviço compõem a ordem de serviço e são gerenciados
- * administrativamente, enquanto o mecânico apenas consulta
- * para execução.
- * <p>
- * /ordens-servico/**
- * - ADMIN: acesso total
- * - SECRETARIA: criação, edição e acompanhamento
- * - MECANICO: consulta e conclusão de ordens
- * - Justificativa:
- * Ordens de serviço representam o fluxo principal da oficina,
- * envolvendo tanto a parte administrativa quanto a execução técnica.
- * <p>
- * ---------------------------------------------------------
- * OBSERVAÇÕES ARQUITETURAIS
- * ---------------------------------------------------------
- * <p>
- * - As regras de acesso são centralizadas nesta configuração,
- * evitando anotações espalhadas nos controllers.
- * - O controle por método HTTP (GET, POST, PUT, DELETE) permite
- * diferenciar leitura de escrita quando necessário.
- * - Essa abordagem facilita manutenção, auditoria e entendimento
- * do sistema por novos desenvolvedores.
+ * Configuração central de segurança da aplicação.
  *
+ * <p>
+ * Define a política de autenticação e autorização baseada em JWT
+ * (abordagem stateless), controlando o acesso aos endpoints conforme
+ * os perfis de usuário do domínio da oficina.
+ *
+ * <p>
+ * Esta classe centraliza todas as regras de acesso por path e método HTTP,
+ * evitando anotações dispersas nos controllers e facilitando manutenção,
+ * auditoria e entendimento do sistema.
+ *
+ * <p>
+ * Perfis existentes no sistema:
+ * <ul>
+ *   <li><b>ADMIN</b>: acesso total e funções administrativas</li>
+ *   <li><b>SECRETARIA</b>: operações administrativas e acompanhamento</li>
+ *   <li><b>MECANICO</b>: execução técnica e atualização de ordens</li>
+ * </ul>
+ *
+ * <p>
+ * A separação de permissões reflete responsabilidades reais do negócio,
+ * reduzindo riscos de acesso indevido e mantendo coerência operacional.
  */
 @Configuration
 public class SecurityConfig {
@@ -115,6 +53,10 @@ public class SecurityConfig {
         this.authenticationEntryPoint = authenticationEntryPoint;
     }
 
+    /**
+     * Expõe o {@link AuthenticationManager} utilizado no fluxo de autenticação,
+     * delegando sua criação à configuração padrão do Spring Security.
+     */
     @Bean
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration config
@@ -122,6 +64,18 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
+    /**
+     * Define a cadeia de filtros e as regras de segurança da aplicação.
+     *
+     * <p>
+     * Decisões arquiteturais adotadas:
+     * <ul>
+     *   <li>CSRF desabilitado por se tratar de uma API stateless</li>
+     *   <li>Ausência de sessão HTTP (JWT)</li>
+     *   <li>Tratamento centralizado de erros 401 e 403</li>
+     *   <li>Controle de acesso por path e método HTTP</li>
+     * </ul>
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
@@ -136,30 +90,36 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
 
+                        // Endpoints públicos
                         .requestMatchers("/auth/**").permitAll()
 
+                        // Gestão de usuários (restrito à administração)
                         .requestMatchers("/usuarios/**").hasAuthority("ADMIN")
 
+                        // Dashboard administrativo
                         .requestMatchers("/dashboard/**")
                         .hasAnyAuthority("ADMIN", "SECRETARIA")
 
+                        // Cadastros administrativos
                         .requestMatchers("/clientes/**")
                         .hasAnyAuthority("ADMIN", "SECRETARIA")
-
                         .requestMatchers("/veiculos/**")
                         .hasAnyAuthority("ADMIN", "SECRETARIA")
 
+                        // Serviços: leitura ampla, escrita restrita
                         .requestMatchers(HttpMethod.POST, "/servicos/**").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/servicos/**").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/servicos/**").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/servicos/**")
                         .hasAnyAuthority("ADMIN", "SECRETARIA", "MECANICO")
 
+                        // Itens de serviço
                         .requestMatchers(HttpMethod.GET, "/itens-servico/**")
                         .hasAnyAuthority("ADMIN", "SECRETARIA", "MECANICO")
                         .requestMatchers("/itens-servico/**")
                         .hasAnyAuthority("ADMIN", "SECRETARIA")
 
+                        // Ordens de serviço
                         .requestMatchers(HttpMethod.GET, "/ordens-servico/**")
                         .hasAnyAuthority("ADMIN", "SECRETARIA", "MECANICO")
                         .requestMatchers(HttpMethod.PUT, "/ordens-servico/concluir/**")
@@ -169,6 +129,7 @@ public class SecurityConfig {
 
                         .anyRequest().authenticated()
                 )
+                // Filtro JWT executado antes do fluxo padrão de autenticação
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

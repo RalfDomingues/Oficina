@@ -20,22 +20,12 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
 /**
- * Serviço responsável pelas regras de negócio relacionadas às
- * {@link OrdemServico}.
+ * Serviço que gerencia o ciclo de vida das Ordens de Serviço (OS).
  *
- * <p>Gerencia o ciclo de vida de uma OS desde sua criação até a conclusão.
- * Também garante que todas as regras do fluxo operacional da oficina sejam
- * respeitadas, como validação de cliente e veículo, atualizações de status
- * e manipulação de valores.</p>
- *
- * <p>Responsabilidades principais:
- * <ul>
- *     <li>Criar OS com cliente e veículo válidos.</li>
- *     <li>Controlar transições de status.</li>
- *     <li>Registrar datas de abertura e conclusão.</li>
- *     <li>Garantir que uma OS concluída receba valor final válido.</li>
- *     <li>Disponibilizar dados em formato DTO para o frontend.</li>
- * </ul>
+ * <p>
+ * Responsável por criar, buscar, listar, atualizar e cancelar OS, garantindo que todas as
+ * regras do fluxo da oficina sejam respeitadas, como validação de cliente/veículo, status,
+ * datas e valores.
  * </p>
  */
 @Service
@@ -58,12 +48,10 @@ public class OrdemServicoService {
     }
 
     /**
-     * Cria uma nova Ordem de Serviço e a registra com status inicial ABERTA.
-     *
-     * @param dto dados de criação da OS
-     * @return DTO representando a OS criada
+     * Cria uma nova OS com status ABERTA.
      *
      * @throws NotFoundException se cliente ou veículo não existirem
+     * @throws BusinessException se cliente estiver inativo ou veículo não pertencer ao cliente
      */
     @Transactional
     public OrdemServicoResponseDTO criar(OrdemServicoCreateDTO dto) {
@@ -88,14 +76,7 @@ public class OrdemServicoService {
     }
 
 
-    /**
-     * Busca uma OS pelo ID.
-     *
-     * @param id identificador da OS
-     * @return DTO com dados completos
-     *
-     * @throws NotFoundException caso a OS não exista
-     */
+    /** Busca uma OS pelo ID, ignorando canceladas. */
     public OrdemServicoResponseDTO buscarPorId(Long id) {
         OrdemServico ordem = ordemRepository
                 .findByIdAndStatusNot(id, StatusOrdemServico.CANCELADA)
@@ -103,7 +84,7 @@ public class OrdemServicoService {
         return new OrdemServicoResponseDTO(ordem);
     }
 
-
+    /** Lista todas as OS não canceladas com paginação. */
     @Transactional(readOnly = true)
     public Page<OrdemServicoResponseDTO> listar(Pageable pageable) {
         return ordemRepository
@@ -113,22 +94,19 @@ public class OrdemServicoService {
 
 
     /**
-     * Atualiza campos da OS, incluindo descrição, valor final e status.
+     * Atualiza campos de uma OS.
      *
-     * <p>Regras importantes:
+     * <p>
+     * Regras principais:
      * <ul>
-     *   <li>O valor final só é aplicado quando fornecido.</li>
-     *   <li>Mudança de status para CONCLUIDA registra automaticamente a data de conclusão.</li>
-     *   <li>Atualizações são parciais (somente campos presentes no DTO).</li>
+     *   <li>Atualizações são parciais (somente campos fornecidos no DTO).</li>
+     *   <li>Status CONCLUIDA registra a data de conclusão automaticamente.</li>
+     *   <li>Não é possível concluir sem serviços cadastrados ou sem valor final.</li>
      * </ul>
      * </p>
      *
-     * @param id identificador da OS
-     * @param dto dados de atualização
-     * @return DTO atualizado
-     *
-     * @throws NotFoundException caso a OS não exista
-     * @throws BusinessException caso regras de transição não sejam atendidas
+     * @throws NotFoundException se a OS não existir
+     * @throws BusinessException se regras de conclusão não forem atendidas
      */
     @Transactional
     public OrdemServicoResponseDTO atualizar(Long id, OrdemServicoUpdateDTO dto) {
@@ -177,6 +155,12 @@ public class OrdemServicoService {
         return new OrdemServicoResponseDTO(ordem);
     }
 
+    /**
+     * Cancela uma OS (marca como CANCELADA) e registra a data de conclusão.
+     *
+     * @throws NotFoundException se a OS não existir
+     * @throws BusinessException se a OS já estiver CONCLUIDA
+     */
     @Transactional
     public void deletar(Long id) {
         OrdemServico ordem = ordemRepository.findById(id)

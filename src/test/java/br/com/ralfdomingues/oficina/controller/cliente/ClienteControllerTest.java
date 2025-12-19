@@ -58,7 +58,7 @@ class ClienteControllerTest {
                 "Carlos",
                 "11111111111",
                 "11999999999",
-                "Rua X"
+                "email@teste.com"
         );
 
         ClienteResponseDTO responseDTO = new ClienteResponseDTO(
@@ -66,7 +66,7 @@ class ClienteControllerTest {
                 "Carlos",
                 "11111111111",
                 "11999999999",
-                "Rua X",
+                "email@teste.com",
                 true
         );
 
@@ -89,7 +89,7 @@ class ClienteControllerTest {
                                 "Maria",
                                 "22222222222",
                                 "11888888888",
-                                "Rua Y",
+                                "email@teste.com",
                                 true
                         )
                 )
@@ -127,7 +127,7 @@ class ClienteControllerTest {
         ClienteUpdateDTO updateDTO = new ClienteUpdateDTO(
                 "José Atualizado",
                 "44444444444",
-                "11666666666",
+                "email@teste.com",
                 true
         );
 
@@ -136,7 +136,7 @@ class ClienteControllerTest {
                 "José Atualizado",
                 "44444444444",
                 "11666666666",
-                "Rua Nova",
+                "teste2@teste.com",
                 true
         );
 

@@ -12,6 +12,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Controller responsável pelo gerenciamento de usuários do sistema.
+ *
+ * <p>
+ * O usuário representa uma identidade de acesso à aplicação,
+ * estando diretamente relacionado à segurança, perfis e permissões.
+ *
+ * <p>
+ * Por se tratar de um recurso sensível, as operações expostas
+ * neste controller são restritas a perfis administrativos.
+ */
 @RestController
 @RequestMapping("/usuarios")
 public class UsuarioController {
@@ -22,6 +33,16 @@ public class UsuarioController {
         this.service = service;
     }
 
+    /**
+     * Cria um novo usuário do sistema.
+     *
+     * <p>
+     * A definição de perfil e a criptografia da senha
+     * são tratadas na camada de serviço.
+     *
+     * @param dto dados de criação do usuário
+     * @return usuário criado
+     */
     @PostMapping
     public ResponseEntity<UsuarioResponseDTO> criar(
             @RequestBody @Valid UsuarioCreateDTO dto) {
@@ -31,6 +52,16 @@ public class UsuarioController {
                 .body(service.criar(dto));
     }
 
+    /**
+     * Lista usuários de forma paginada.
+     *
+     * <p>
+     * A paginação é padronizada para facilitar
+     * o gerenciamento administrativo.
+     *
+     * @param pageable parâmetros de paginação
+     * @return página de usuários
+     */
     @GetMapping
     public ResponseEntity<Page<UsuarioResponseDTO>> listar(
             @PageableDefault(
@@ -42,12 +73,28 @@ public class UsuarioController {
         return ResponseEntity.ok(service.listar(pageable));
     }
 
-
+    /**
+     * Busca um usuário pelo identificador.
+     *
+     * @param id identificador do usuário
+     * @return usuário encontrado
+     */
     @GetMapping("/{id}")
     public ResponseEntity<UsuarioResponseDTO> buscar(@PathVariable Long id) {
         return ResponseEntity.ok(service.buscarPorId(id));
     }
 
+    /**
+     * Atualiza os dados de um usuário existente.
+     *
+     * <p>
+     * Alterações de perfil ou status impactam diretamente
+     * o controle de acesso da aplicação.
+     *
+     * @param id  identificador do usuário
+     * @param dto dados atualizados
+     * @return usuário atualizado
+     */
     @PutMapping("/{id}")
     public ResponseEntity<UsuarioResponseDTO> atualizar(
             @PathVariable Long id,
@@ -56,7 +103,15 @@ public class UsuarioController {
         return ResponseEntity.ok(service.atualizar(id, dto));
     }
 
-
+    /**
+     * Desativa um usuário do sistema.
+     *
+     * <p>
+     * A desativação impede novas autenticações,
+     * preservando o histórico de dados associados ao usuário.
+     *
+     * @param id identificador do usuário
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> desativar(@PathVariable Long id) {
         service.desativar(id);

@@ -67,6 +67,7 @@ public class VeiculoService {
                 .ano(dto.ano())
                 .tipo(dto.tipo())
                 .cliente(cliente)
+                .ativo(true)
                 .build();
 
         Veiculo salvo = veiculoRepository.save(veiculo);

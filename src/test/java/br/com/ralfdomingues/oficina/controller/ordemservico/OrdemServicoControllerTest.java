@@ -81,7 +81,7 @@ class OrdemServicoControllerTest {
         mockMvc.perform(post("/ordens-servico")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createDTO)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(100L))
                 .andExpect(jsonPath("$.descricao").value("Carro falhando"));
     }

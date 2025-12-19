@@ -10,19 +10,19 @@ import java.time.LocalDateTime;
 
 
 /**
- * Representa uma Ordem de Serviço (OS) dentro da oficina mecânica.
+ * Entidade que representa uma Ordem de Serviço (OS).
  *
- * <p>Uma OS registra o atendimento realizado para um veículo de um cliente,
- * incluindo o problema informado, status de execução, datas e valores.
- * Esta é a entidade central do sistema, pois organiza o fluxo de trabalho
- * da oficina do início ao fim.</p>
+ * <p>
+ * Registra o atendimento realizado para um veículo de um cliente, incluindo descrição do serviço,
+ * datas, status e valores. Centraliza o fluxo de trabalho da oficina do início ao fim.
+ * </p>
  *
  * <p>Regras importantes:
  * <ul>
- *     <li>Deve estar sempre associada a um cliente e um veículo.</li>
- *     <li>Possui um status obrigatório que controla seu fluxo.</li>
- *     <li>A data de abertura é registrada automaticamente no momento da criação.</li>
- *     <li>A data de conclusão só deve existir quando o status for CONCLUIDA.</li>
+ *     <li>Deve estar associada a um cliente e um veículo.</li>
+ *     <li>Status obrigatório controla o fluxo da ordem.</li>
+ *     <li>Data de abertura é definida automaticamente na criação.</li>
+ *     <li>Data de conclusão é preenchida apenas quando o status é CONCLUIDA.</li>
  * </ul>
  * </p>
  */
@@ -63,6 +63,9 @@ public class OrdemServico {
 
     private BigDecimal valorFinal;
 
+    /**
+     * Cria uma ordem de serviço com status ABERTA e data de abertura atual.
+     */
     public OrdemServico(Cliente cliente, Veiculo veiculo, String descricao, BigDecimal valorEstimado) {
         this.cliente = cliente;
         this.veiculo = veiculo;

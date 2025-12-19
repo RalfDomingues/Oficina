@@ -16,18 +16,13 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Serviço responsável pelas regras de negócio relacionadas a {@link Cliente}.
  *
- * <p>Esta classe centraliza operações como cadastro, atualização e busca
- * de clientes. Todas as validações específicas do domínio acontecem aqui,
- * protegendo o restante da aplicação contra estados inválidos.</p>
+ * <p>
+ * Centraliza operações de cadastro, atualização, consulta e desativação,
+ * garantindo consistência e integridade dos dados do cliente.
  *
- * <p>Principais responsabilidades:
- *     <ul>
- *         <li>Garantir unicidade de documento (CPF/CNPJ).</li>
- *         <li>Aplicar validações de negócio antes de persistir.</li>
- *         <li>Evitar duplicidade e inconsistência de dados.</li>
- *         <li>Converter entidades para DTOs de saída.</li>
- *     </ul>
- * </p>
+ * <p>
+ * Esta camada protege o domínio contra estados inválidos e encapsula
+ * decisões como unicidade de documento e exclusão lógica.
  */
 @Service
 @RequiredArgsConstructor
@@ -102,6 +97,15 @@ public class ClienteService {
         return new ClienteResponseDTO(cliente);
     }
 
+    /**
+     * Realiza a desativação lógica de um cliente.
+     *
+     * <p>
+     * O cliente não é removido fisicamente, preservando
+     * o histórico de atendimentos.
+     *
+     * @param id identificador do cliente
+     */
     @Transactional
     public void deletar(Long id) {
         Cliente cliente = repository.findById(id)
@@ -110,6 +114,12 @@ public class ClienteService {
         repository.save(cliente);
     }
 
+    /**
+     * Lista clientes ativos de forma paginada.
+     *
+     * @param pageable parâmetros de paginação
+     * @return página de clientes ativos
+     */
     @Transactional(readOnly = true)
     public Page<ClienteResponseDTO> listar(Pageable pageable) {
         return repository.findAllByAtivoTrue(pageable)

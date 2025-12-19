@@ -12,20 +12,55 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Repositório responsável pelo acesso e consultas de {@link OrdemServico}.
+ *
+ * <p>
+ * Centraliza operações de leitura relacionadas às ordens de serviço,
+ * incluindo filtros por status e consultas agregadas utilizadas no dashboard.
+ * </p>
+ */
 public interface OrdemServicoRepository extends JpaRepository<OrdemServico, Long> {
 
-    List<OrdemServico> findAllByStatusNot(StatusOrdemServico status);
-
+    /**
+     * Retorna ordens de serviço cujo status seja diferente do informado.
+     *
+     * <p>
+     * Utilizado para ocultar ordens canceladas ou finalizadas,
+     * conforme o contexto da listagem.
+     *
+     * @param status status a ser ignorado
+     * @param pageable parâmetros de paginação
+     * @return página de ordens filtradas
+     */
     Page<OrdemServico> findAllByStatusNot(
             StatusOrdemServico status,
             Pageable pageable
     );
 
+    /**
+     * Retorna uma ordem de serviço pelo ID, desde que não esteja no status informado.
+     *
+     * <p>
+     * Utilizado para evitar acesso direto a ordens canceladas ou inválidas.
+     *
+     * @param id identificador da ordem
+     * @param status status a ser ignorado
+     * @return ordem encontrada ou vazio caso não exista ou esteja no status bloqueado
+     */
     Optional<OrdemServico> findByIdAndStatusNot(
             Long id,
             StatusOrdemServico status
     );
 
+    /**
+     * Retorna o total de ordens agrupadas por status.
+     *
+     * <p>
+     * Consulta utilizada para geração de indicadores no dashboard.
+     *
+     * @return lista com status e quantidade de ordens
+     */
     @Query("""
                 SELECT new br.com.ralfdomingues.oficina.domain.dashboard.dto.OrdemStatusResumoDTO(
                     o.status, COUNT(o)
@@ -35,6 +70,14 @@ public interface OrdemServicoRepository extends JpaRepository<OrdemServico, Long
             """)
     List<OrdemStatusResumoDTO> resumoPorStatus();
 
+    /**
+     * Retorna o faturamento total das ordens concluídas.
+     *
+     * <p>
+     * Caso não existam ordens concluídas, retorna zero.
+     *
+     * @return valor total faturado
+     */
     @Query("""
                 SELECT COALESCE(SUM(o.valorFinal), 0)
                 FROM OrdemServico o
@@ -42,6 +85,15 @@ public interface OrdemServicoRepository extends JpaRepository<OrdemServico, Long
             """)
     BigDecimal faturamentoTotal();
 
+    /**
+     * Retorna a quantidade de ordens agrupadas por mês de abertura.
+     *
+     * <p>
+     * Utilizado para análise temporal no dashboard.
+     * O mês é retornado no formato {@code YYYY-MM}.
+     *
+     * @return lista com mês e total de ordens
+     */
     @Query("""
                 SELECT new br.com.ralfdomingues.oficina.domain.dashboard.dto.OrdensPorMesDTO(
                     CONCAT(

@@ -14,10 +14,35 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Handler global de exceções da API.
+ *
+ * <p>
+ * Centraliza o tratamento de erros e garante respostas HTTP
+ * padronizadas para todos os endpoints da aplicação.
+ *
+ * <p>
+ * A API adota um contrato consistente de erro contendo:
+ * <ul>
+ *   <li>Timestamp da ocorrência</li>
+ *   <li>Status HTTP</li>
+ *   <li>Descrição padrão do erro</li>
+ *   <li>Mensagem funcional para o cliente</li>
+ *   <li>Detalhes de validação quando aplicável</li>
+ * </ul>
+ *
+ * <p>
+ * Essa abordagem facilita o consumo da API pelo frontend
+ * e simplifica a manutenção do tratamento de erros.
+ */
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    // 401 - AUTENTICAÇÃO
+    /**
+     * Trata falhas de autenticação causadas por credenciais inválidas.
+     *
+     * @return resposta HTTP 401 com mensagem padronizada
+     */
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<Object> handleBadCredentials(BadCredentialsException ex) {
         Map<String, Object> body = buildBody(
@@ -28,6 +53,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
     }
 
+    /**
+     * Trata falhas genéricas de autenticação.
+     *
+     * @return resposta HTTP 401
+     */
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<Object> handleAuthentication(AuthenticationException ex) {
         Map<String, Object> body = buildBody(
@@ -38,7 +68,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
     }
 
-    // 404 - NOT FOUND
+    /**
+     * Trata erros de recurso não encontrado.
+     *
+     * @return resposta HTTP 404
+     */
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<Object> handleNotFound(NotFoundException ex) {
         Map<String, Object> body = buildBody(
@@ -49,7 +83,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 
-    // 400 - REGRAS DE NEGÓCIO
+    /**
+     * Trata violações de regras de negócio.
+     *
+     * @return resposta HTTP 400
+     */
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<Object> handleBusiness(BusinessException ex) {
         Map<String, Object> body = buildBody(
@@ -60,7 +98,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
-    // 400 - VALIDAÇÕES
+    /**
+     * Trata erros de validação de dados de entrada.
+     *
+     * <p>
+     * Retorna os erros agrupados por campo para facilitar
+     * o consumo pelo frontend.
+     *
+     * @return resposta HTTP 400 com detalhes de validação
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handleValidation(MethodArgumentNotValidException ex) {
         Map<String, Object> errors = new HashMap<>();
@@ -78,7 +124,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
-    // 500 - ERRO GENÉRICO
+    /**
+     * Trata exceções não previstas, evitando exposição de detalhes internos.
+     *
+     * <p>
+     * O stack trace é registrado para análise interna,
+     * enquanto o cliente recebe uma mensagem genérica.
+     *
+     * @return resposta HTTP 500
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGeneral(Exception ex) {
 
@@ -92,11 +146,21 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
 
-    // UTILITÁRIOS
+    /**
+     * Constrói o corpo padrão de erro sem detalhes adicionais.
+     */
     private Map<String, Object> buildBody(HttpStatus status, String message) {
         return buildBody(status, message, null);
     }
 
+    /**
+     * Constrói o corpo padrão de erro da API.
+     *
+     * @param status  status HTTP
+     * @param message mensagem funcional
+     * @param errors  detalhes opcionais (ex: validações)
+     * @return mapa representando o erro
+     */
     private Map<String, Object> buildBody(
             HttpStatus status,
             String message,

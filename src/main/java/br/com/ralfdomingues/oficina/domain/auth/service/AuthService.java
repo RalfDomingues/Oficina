@@ -15,6 +15,17 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 
+/**
+ * Serviço responsável pelo processo de autenticação de usuários.
+ *
+ * <p>
+ * Centraliza a validação de credenciais, geração de token JWT e
+ * registro de eventos de autenticação para fins de auditoria.
+ *
+ * <p>
+ * Este serviço não gerencia sessão, seguindo uma arquitetura
+ * stateless baseada em JWT.
+ */
 @Service
 public class AuthService {
 
@@ -38,6 +49,27 @@ public class AuthService {
         this.request = request;
     }
 
+    /**
+     * Realiza a autenticação do usuário e gera um token JWT.
+     *
+     * <p>
+     * O fluxo consiste em:
+     * <ol>
+     *     <li>Validação das credenciais via {@link AuthenticationManager}</li>
+     *     <li>Recuperação do usuário para composição do token</li>
+     *     <li>Geração do JWT</li>
+     *     <li>Registro de auditoria (sucesso ou falha)</li>
+     * </ol>
+     *
+     * <p>
+     * Em caso de falha, exceções de autenticação são propagadas
+     * para serem tratadas globalmente.
+     *
+     * @param dto credenciais de login
+     * @return token JWT e dados básicos do usuário autenticado
+     * @throws BadCredentialsException quando a senha é inválida
+     * @throws AuthenticationException quando ocorre falha na autenticação
+     */
     public LoginResponseDTO login(LoginRequestDTO dto) {
 
         try {

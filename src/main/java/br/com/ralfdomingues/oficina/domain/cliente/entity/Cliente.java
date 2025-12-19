@@ -7,18 +7,14 @@ import lombok.*;
 
 
 /**
- * Representa um cliente da oficina.
+ * Entidade que representa um cliente da oficina.
  *
- * <p>Um cliente pode possuir um ou mais veículos cadastrados e pode abrir
- * ordens de serviço. Esta entidade é fundamental para vincular atendimentos
- * e registrar o histórico de serviços realizados.</p>
+ * <p>
+ * O cliente é responsável por vincular veículos e ordens de serviço,
+ * permitindo o registro e acompanhamento do histórico de atendimentos.
  *
- * <p>Regras importantes:
- * <ul>
- *     <li>O cliente deve conter dados mínimos válidos (nome, telefone, documento).</li>
- *     <li>Pode estar associado a diferentes ordens de serviço ao longo do tempo.</li>
- * </ul>
- * </p>
+ * <p>
+ * A ativação/desativação permite preservar o histórico sem exclusão física.
  */
 @Entity
 @Table(name = "cliente",

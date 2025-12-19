@@ -9,6 +9,19 @@ import br.com.ralfdomingues.oficina.repository.ordemservico.OrdemServicoReposito
 import org.springframework.stereotype.Service;
 import java.util.List;
 
+/**
+ * Serviço responsável por fornecer métricas e indicadores
+ * consolidados para o dashboard da aplicação.
+ *
+ * <p>
+ * Atua como camada de orquestração de consultas agregadas,
+ * delegando a responsabilidade de cálculo e agrupamento
+ * às queries especializadas dos repositórios.
+ *
+ * <p>
+ * Não contém regras de negócio transacionais nem lógica
+ * de modificação de estado.
+ */
 @Service
 public class DashboardService {
 
@@ -22,21 +35,32 @@ public class DashboardService {
         this.itemRepository = itemRepository;
     }
 
+    /**
+     * Retorna o resumo de ordens de serviço agrupadas por status.
+     */
     public List<OrdemStatusResumoDTO> ordensPorStatus() {
         return ordemRepository.resumoPorStatus();
     }
 
+    /**
+     * Retorna o valor total faturado considerando as ordens registradas.
+     */
     public FaturamentoResumoDTO faturamentoTotal() {
         return new FaturamentoResumoDTO(
                 ordemRepository.faturamentoTotal()
         );
     }
 
+    /**
+     * Retorna os serviços mais utilizados com base nos itens de serviço.
+     */
     public List<ServicoMaisUsadoDTO> servicosMaisUsados() {
         return itemRepository.servicosMaisUsados();
     }
 
-    // opcional
+    /**
+     * Retorna o volume de ordens de serviço agrupadas por mês.
+     */
     public List<OrdensPorMesDTO> ordensPorMes() {
         return ordemRepository.ordensPorMes();
     }
