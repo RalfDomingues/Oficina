@@ -1,0 +1,25 @@
+.content {
+    min-width: min(460px, 86vw);
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 12px;
+    padding: 10px 0;
+}
+
+.label {
+    opacity: 0.75;
+    font-weight: 600;
+}
+
+.value {
+    font-weight: 700;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 6px;
+}

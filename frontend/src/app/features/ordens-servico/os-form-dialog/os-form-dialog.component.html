@@ -1,0 +1,93 @@
+<h2 mat-dialog-title>
+    {{ data.mode === 'create' ? 'Criar OS' : 'Editar OS' }}
+</h2>
+
+<div mat-dialog-content>
+    <form [formGroup]="form" class="form">
+
+        <!-- CREATE: escolhe cliente + veículo AMARRADO -->
+        <ng-container *ngIf="data.mode === 'create'">
+            <div class="row">
+                <mat-form-field appearance="outline" class="field">
+                    <mat-label>Cliente</mat-label>
+                    <mat-select formControlName="clienteId">
+                        <mat-option *ngIf="loadingClientes" [value]="null" disabled>Carregando clientes...</mat-option>
+                        <mat-option *ngFor="let c of clientes" [value]="c.id">
+                            {{ c.nome }} (ID: {{ c.id }})
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="field">
+                    <mat-label>Veículo</mat-label>
+                    <mat-select formControlName="veiculoId"
+                        [disabled]="!form.get('clienteId')?.value || loadingVeiculos">
+                        <mat-option *ngIf="loadingVeiculos" [value]="null" disabled>Carregando veículos...</mat-option>
+                        <mat-option *ngIf="!loadingVeiculos && veiculosFiltrados.length === 0" [value]="null" disabled>
+                            Nenhum veículo para este cliente
+                        </mat-option>
+                        <mat-option *ngFor="let v of veiculosFiltrados" [value]="v.id">
+                            {{ v.modelo }} (ID: {{ v.id }})
+                        </mat-option>
+                    </mat-select>
+                    <mat-hint>Ao trocar o cliente, você precisa selecionar um veículo do cliente.</mat-hint>
+                </mat-form-field>
+            </div>
+
+            <mat-form-field appearance="outline" class="field">
+                <mat-label>Descrição</mat-label>
+                <input matInput formControlName="descricao" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="field">
+                <mat-label>Valor estimado</mat-label>
+                <input matInput type="number" formControlName="valorEstimado" />
+            </mat-form-field>
+        </ng-container>
+
+        <!-- EDIT: não muda cliente/veículo (BACK não contempla) -->
+        <ng-container *ngIf="data.mode === 'edit'">
+            <div class="row">
+                <mat-form-field appearance="outline" class="field">
+                    <mat-label>Cliente (ID)</mat-label>
+                    <input matInput type="number" formControlName="clienteId" />
+                    <mat-hint>Cliente não pode ser alterado após a criação.</mat-hint>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="field">
+                    <mat-label>Veículo (ID)</mat-label>
+                    <input matInput type="number" formControlName="veiculoId" />
+                    <mat-hint>Veículo não pode ser alterado após a criação.</mat-hint>
+                </mat-form-field>
+            </div>
+
+            <mat-form-field appearance="outline" class="field">
+                <mat-label>Descrição</mat-label>
+                <input matInput formControlName="descricao" />
+            </mat-form-field>
+
+            <div class="row">
+                <mat-form-field appearance="outline" class="field">
+                    <mat-label>Status</mat-label>
+                    <mat-select formControlName="status">
+                        <mat-option *ngFor="let s of statusesEdit" [value]="s">{{ s }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="field">
+                    <mat-label>Valor final</mat-label>
+                    <input matInput type="number" formControlName="valorFinal" />
+                    <mat-hint>Se concluir a OS, o valor final é obrigatório.</mat-hint>
+                </mat-form-field>
+            </div>
+        </ng-container>
+
+    </form>
+</div>
+
+<div mat-dialog-actions align="end">
+    <button mat-button (click)="ref.close()">Cancelar</button>
+    <button mat-raised-button color="primary" [disabled]="form.invalid" (click)="save()">
+        Salvar
+    </button>
+</div>

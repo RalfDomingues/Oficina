@@ -1,0 +1,27 @@
+.content {
+    min-width: min(520px, 86vw);
+}
+
+.full {
+    width: 100%;
+}
+
+.form {
+    display: grid;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.state {
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(255, 0, 0, 0.08);
+    margin-bottom: 10px;
+}

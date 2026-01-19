@@ -1,0 +1,55 @@
+.form {
+  display: grid;
+  gap: 24px;
+  /* AUMENTADO: espaço real entre blocos */
+  padding-top: 8px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px 20px;
+  /* AUMENTADO: vertical e horizontal */
+  align-items: start;
+}
+
+.field {
+  width: 100%;
+  display: block;
+}
+
+/* =========================
+   CORREÇÃO DO MAT-HINT
+========================= */
+
+/* força o subscript (hint/erro) a ocupar espaço real */
+:host ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+  min-height: 28px;
+  /* AUMENTADO (era 18) */
+  margin-top: 6px;
+}
+
+/* garante quebra de linha sem sobrepor */
+:host ::ng-deep .mat-mdc-form-field-hint-wrapper,
+:host ::ng-deep .mat-mdc-form-field-error-wrapper {
+  white-space: normal;
+  line-height: 1.2;
+}
+
+/* evita colapso de altura interno do mat-form-field */
+:host ::ng-deep .mat-mdc-form-field {
+  display: block;
+}
+
+/* deixa o outline respirar um pouco mais */
+:host ::ng-deep .mat-mdc-text-field-wrapper {
+  padding-bottom: 2px;
+}
+
+/* mobile */
+@media (max-width: 900px) {
+  .row {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}

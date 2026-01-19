@@ -1,0 +1,67 @@
+<div class="dash">
+
+    <div class="dash-header">
+        <div>
+            <h1 class="title">Dashboard</h1>
+            <p class="subtitle">Visão geral da oficina</p>
+        </div>
+    </div>
+
+    <div *ngIf="loading" class="state">Carregando...</div>
+    <div *ngIf="!loading && error" class="state error">{{ error }}</div>
+
+    <ng-container *ngIf="!loading && !error">
+
+        <!-- Cards -->
+        <div class="cards">
+            <div class="card" *ngFor="let c of cards">
+                <div class="card-label">{{ c.label }}</div>
+                <div class="card-value">{{ c.value }}</div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- Top serviços -->
+            <section class="panel">
+                <div class="panel-title">Serviços mais usados</div>
+
+                <div *ngIf="servicosMaisUsados.length === 0" class="empty">
+                    Sem dados.
+                </div>
+
+                <div class="list" *ngIf="servicosMaisUsados.length > 0">
+                    <div class="row header">
+                        <div>Serviço</div>
+                        <div class="right">Qtd.</div>
+                    </div>
+
+                    <div class="row" *ngFor="let s of servicosMaisUsados">
+                        <div class="strong">{{ s.nomeServico }}</div>
+                        <div class="right">{{ s.quantidade }}</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Ordens por mês -->
+            <section class="panel">
+                <div class="panel-title">Ordens por mês</div>
+
+                <div *ngIf="ordensPorMes.length === 0" class="empty">
+                    Sem dados.
+                </div>
+
+                <div class="list" *ngIf="ordensPorMes.length > 0">
+                    <div class="row header">
+                        <div>Mês</div>
+                        <div class="right">Qtd.</div>
+                    </div>
+
+                    <div class="row" *ngFor="let o of ordensPorMes">
+                        <div class="strong">{{ formatMes(o.mes) }}</div>
+                        <div class="right">{{ o.quantidade }}</div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </ng-container>
+</div>

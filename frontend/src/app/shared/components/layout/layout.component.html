@@ -1,0 +1,42 @@
+<mat-sidenav-container class="container">
+
+  <mat-sidenav mode="side" opened>
+    <div class="sidebar-header">
+      <h3 class="menu-title">Menu</h3>
+    </div>
+
+    <mat-nav-list>
+      <ng-container *ngFor="let item of menu">
+        <a *ngIf="canSee(item)" mat-list-item [routerLink]="item.route" routerLinkActive="mat-list-item-active"
+          [routerLinkActiveOptions]="{ exact: item.route === '/home' }">
+          {{ item.label }}
+        </a>
+      </ng-container>
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar color="primary">
+      <mat-toolbar-row class="topbar">
+        <div class="brand">
+          <span class="brand-title">MotorFlow </span>
+          <span class="brand-sub">Gestão da oficina</span>
+        </div>
+
+        <span class="spacer"></span>
+
+        <div class="user-box">
+          <span class="user-pill">Acesso: {{ perfil }}</span>
+          <span class="user-pill" *ngIf="user?.nome">Usuário: {{ user?.nome }}</span>
+        </div>
+
+        <button mat-button (click)="logout()">Sair</button>
+      </mat-toolbar-row>
+    </mat-toolbar>
+
+    <div class="content">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-sidenav-content>
+
+</mat-sidenav-container>

@@ -1,0 +1,141 @@
+.dash {
+    padding: 20px;
+}
+
+.dash-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.title {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.subtitle {
+    margin: 6px 0 0 0;
+    font-size: 14px;
+    opacity: 0.75;
+}
+
+.state {
+    padding: 16px;
+    border-radius: 14px;
+    background: rgba(0, 0, 0, 0.04);
+}
+
+.state.error {
+    background: rgba(255, 0, 0, 0.08);
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin: 16px 0 16px;
+}
+
+.card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 16px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
+}
+
+.card-label {
+    font-size: 13px;
+    opacity: 0.75;
+    margin-bottom: 8px;
+}
+
+.card-value {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 14px;
+    margin-top: 10px;
+}
+
+.panel {
+    background: #fff;
+    border-radius: 16px;
+    padding: 16px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
+    min-height: 260px;
+}
+
+.panel-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.empty {
+    padding: 14px;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.04);
+    opacity: 0.8;
+}
+
+.list {
+    display: grid;
+    gap: 6px;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 1fr 100px;
+    gap: 10px;
+    padding: 10px 10px;
+    border-radius: 12px;
+}
+
+.row.header {
+    background: rgba(0, 0, 0, 0.04);
+    font-size: 12px;
+    font-weight: 700;
+    opacity: 0.85;
+}
+
+.row:not(.header):hover {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+.strong {
+    font-weight: 650;
+}
+
+.right {
+    text-align: right;
+}
+
+@media (max-width: 1100px) {
+    .cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 560px) {
+    .dash {
+        padding: 14px;
+    }
+
+    .cards {
+        grid-template-columns: 1fr;
+    }
+}

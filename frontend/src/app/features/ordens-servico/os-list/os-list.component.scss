@@ -1,0 +1,121 @@
+.page {
+  width: 100%;
+  max-width: none; /* << libera largura */
+  margin: 0;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.sub {
+  margin: 6px 0 0 0;
+  opacity: 0.7;
+  font-size: 13px;
+}
+
+.card {
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.06);
+  width: 100%;
+}
+
+.table-wrap {
+  width: 100%;
+  overflow: auto; /* scroll horizontal se precisar */
+}
+
+/* ===== TABELA ===== */
+table {
+  width: 100%;
+  min-width: 1100px; /* garante espaço pra colunas */
+  table-layout: fixed;
+}
+
+.mat-mdc-header-cell,
+.mat-mdc-cell {
+  vertical-align: middle;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.col-descricao {
+  white-space: normal !important;
+  line-height: 1.2;
+}
+
+/* larguras principais */
+.mat-mdc-column-id { width: 80px; }
+.mat-mdc-column-status { width: 160px; }
+.mat-mdc-column-dataAbertura { width: 140px; }
+.mat-mdc-column-acoes { width: 260px; }
+.mat-mdc-column-cliente { width: 220px; }
+.mat-mdc-column-veiculo { width: 220px; }
+
+/* ===== AÇÕES ===== */
+.actions-cell { overflow: visible; }
+
+.actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: nowrap;
+}
+
+.actions button[mat-button],
+.actions button[mat-raised-button] {
+  height: 34px;
+  border-radius: 999px;
+  min-width: auto;
+}
+
+.actions button[mat-button] { padding: 0 10px; }
+.actions button[mat-raised-button] { padding: 0 14px; }
+
+/* ===== STATUS ===== */
+.status-pill {
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(15, 23, 42, 0.06);
+}
+
+.status-pill[data-status="CONCLUIDA"] { background: rgba(34, 197, 94, 0.14); }
+.status-pill[data-status="EM_ANDAMENTO"] { background: rgba(14, 165, 233, 0.14); }
+.status-pill[data-status="ABERTA"] { background: rgba(245, 158, 11, 0.16); }
+.status-pill[data-status="CANCELADA"] { background: rgba(239, 68, 68, 0.14); }
+
+@media (max-width: 900px) {
+  .header { flex-direction: column; align-items: stretch; }
+  .mat-mdc-column-acoes { width: 220px; }
+}
+
+.toolbar {
+  display: flex;
+  justify-content: flex-end;margin-bottom: 12px;
+}
+
+.search {
+  width: min(560px, 100%);
+}
+
+.search-info{
+  font-size: 12px;
+  opacity: .7;
+  padding: 0 12px 10px 12px;
+}

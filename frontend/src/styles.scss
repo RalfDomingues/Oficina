@@ -1,0 +1,83 @@
+/* =========================
+   DESIGN TOKENS — MOTORFLOW
+========================= */
+
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+
+:root {
+  --font-size: 16px;
+
+  /* Base */
+  --background: #f8fafc;
+  --foreground: #0f172a;
+
+  /* Cards */
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+
+  /* Primary (Azul MotorFlow) */
+  --primary: #0ea5e9;
+  --primary-foreground: #ffffff;
+
+  /* Secondary */
+  --secondary: #e0f2fe;
+  --secondary-foreground: #0c4a6e;
+
+  /* Muted */
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+
+  /* Borders & Radius */
+  --border: rgba(14, 165, 233, 0.15);
+  --radius: 10px;
+
+  /* Sidebar */
+  --sidebar-bg: #e0f2fe;
+  --sidebar-text: #0c4a6e;
+  --sidebar-hover: rgba(14, 165, 233, 0.12);
+
+  /* Toolbar */
+  --toolbar-bg: #ffffff;
+  --toolbar-text: #0f172a;
+}
+
+/* =========================
+   DARK MODE (futuro)
+========================= */
+.dark {
+  --background: #0f172a;
+  --foreground: #f8fafc;
+
+  --card: #020617;
+  --card-foreground: #f8fafc;
+
+  --primary: #38bdf8;
+  --primary-foreground: #020617;
+
+  --sidebar-bg: #020617;
+  --sidebar-text: #e5e7eb;
+  --sidebar-hover: rgba(56, 189, 248, 0.15);
+
+  --toolbar-bg: #020617;
+  --toolbar-text: #f8fafc;
+}
+
+/* =========================
+   GLOBAL RESET
+========================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: var(--font-size);
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}

@@ -1,0 +1,50 @@
+<h2 mat-dialog-title>
+  {{ data.mode === 'create' ? 'Novo veículo' : 'Editar veículo' }}
+</h2>
+
+<form [formGroup]="form" (ngSubmit)="salvar()">
+  <div mat-dialog-content class="form-grid">
+
+    <mat-form-field appearance="outline">
+      <mat-label>Placa</mat-label>
+      <input matInput formControlName="placa" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Modelo</mat-label>
+      <input matInput formControlName="modelo" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Marca</mat-label>
+      <input matInput formControlName="marca" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Ano</mat-label>
+      <input matInput type="number" formControlName="ano" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Tipo</mat-label>
+      <input matInput formControlName="tipo" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Cliente ID</mat-label>
+      <input matInput type="number" formControlName="clienteId" />
+    </mat-form-field>
+
+    <mat-checkbox formControlName="ativo">
+      Veículo ativo
+    </mat-checkbox>
+
+  </div>
+
+  <div mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="cancelar()">Cancelar</button>
+    <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">
+      Salvar
+    </button>
+  </div>
+</form>

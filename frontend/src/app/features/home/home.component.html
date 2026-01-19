@@ -1,0 +1,24 @@
+<div class="home">
+  <header class="home-header">
+    <div class="welcome">
+      <h1>Bem-vindo, {{ user?.nome || 'usuário' }}</h1>
+      <p>Use o menu lateral para navegar. Abaixo um resumo rápido do dia.</p>
+    </div>
+  </header>
+
+  <section class="grid">
+    <div class="card">
+      <div class="card-title">OS em andamento</div>
+      <div class="card-value">{{ osEmAndamento }}</div>
+      <div class="card-sub">Acompanhe na tela de Ordens de Serviço</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Concluídas hoje</div>
+      <div class="card-value">{{ osConcluidasHoje }}</div>
+      <div class="card-sub">Baseado na data de conclusão</div>
+    </div>
+
+
+  </section>
+</div>

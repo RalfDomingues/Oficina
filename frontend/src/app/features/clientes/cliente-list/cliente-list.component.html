@@ -1,0 +1,65 @@
+<div class="page">
+    <div class="page-header">
+        <div>
+            <h1 class="title">Clientes</h1>
+            <p class="subtitle">Gerencie cadastros e visualize informações rapidamente.</p>
+        </div>
+
+        <div class="header-actions">
+            <div class="search">
+                <input class="search-input" type="text" placeholder="Buscar por nome, email ou telefone..."
+                    [(ngModel)]="search" (input)="applyFilter()" />
+            </div>
+
+            <button class="btn primary" *ngIf="canWrite" (click)="abrirNovo()" type="button">
+                Novo cliente
+            </button>
+        </div>
+    </div>
+
+    <div *ngIf="loading" class="state">Carregando...</div>
+    <div *ngIf="!loading && errorMsg" class="state error">{{ errorMsg }}</div>
+
+    <div class="panel" *ngIf="!loading && !errorMsg">
+        <div class="table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Email</th>
+                        <th>Telefone</th>
+                        <th class="right">Ações</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr *ngFor="let c of filtered">
+                        <td class="strong">{{ c.nome }}</td>
+                        <td>{{ c.email || '-' }}</td>
+                        <td>{{ formatTelefone(c.telefone) }}</td>
+
+                        <td class="right actions">
+                            <button class="icon-btn" type="button" (click)="verDetalhes(c)">
+                                Ver
+                            </button>
+
+                            <button class="icon-btn" type="button" *ngIf="canWrite" (click)="editar(c)">
+                                Editar
+                            </button>
+
+                            <button class="icon-btn danger" type="button" *ngIf="canWrite" (click)="excluir(c)">
+                                Excluir
+                            </button>
+                        </td>
+                    </tr>
+
+                    <tr *ngIf="filtered.length === 0">
+                        <td colspan="4" class="empty">
+                            Nenhum cliente encontrado.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

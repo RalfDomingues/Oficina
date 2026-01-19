@@ -1,0 +1,42 @@
+<div class="login-shell">
+    <mat-card class="login-card">
+        <div class="brand">
+            <div class="logo">MF</div>
+            <div class="titles">
+                <div class="name">MotorFlow</div>
+                <div class="subtitle">Acesso ao sistema</div>
+            </div>
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="submit()" class="form">
+            <mat-form-field appearance="outline" class="field">
+                <mat-label>Email</mat-label>
+                <input matInput formControlName="email" type="email" autocomplete="username" />
+                <mat-error *ngIf="form.controls.email.touched && form.controls.email.hasError('required')">
+                    Email é obrigatório.
+                </mat-error>
+                <mat-error *ngIf="form.controls.email.touched && form.controls.email.hasError('email')">
+                    Informe um email válido.
+                </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="field">
+                <mat-label>Senha</mat-label>
+                <input matInput formControlName="senha" type="password" autocomplete="current-password" />
+                <mat-error *ngIf="form.controls.senha.touched && form.controls.senha.hasError('required')">
+                    Senha é obrigatória.
+                </mat-error>
+            </mat-form-field>
+
+            <div class="error" *ngIf="errorMsg">{{ errorMsg }}</div>
+
+            <button mat-raised-button color="primary" class="submit" type="submit" [disabled]="loading">
+                <ng-container *ngIf="!loading">Entrar</ng-container>
+                <ng-container *ngIf="loading">
+                    <mat-spinner diameter="18"></mat-spinner>
+                    <span class="loading-text">Entrando...</span>
+                </ng-container>
+            </button>
+        </form>
+    </mat-card>
+</div>

@@ -1,0 +1,83 @@
+/* CONTAINER */
+.container {
+  height: 100vh;
+  background: #f8fafc;
+}
+
+/* SIDEBAR */
+mat-sidenav {
+  width: 240px;
+  background-color: #e0f2fe;
+  color: #0c4a6e;
+  border-right: 1px solid rgba(14, 165, 233, 0.15);
+}
+
+/* HEADER SIDEBAR */
+.sidebar-header {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  border-bottom: 1px solid rgba(14, 165, 233, 0.15);
+}
+
+.menu-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #0c4a6e;
+  letter-spacing: 0.3px;
+}
+
+/* MENU */
+mat-nav-list a {
+  color: #0c4a6e !important;
+  border-radius: 10px;
+  margin: 4px 8px;
+  font-weight: 600;
+}
+
+mat-nav-list a:hover {
+  background: rgba(14, 165, 233, 0.12);
+}
+
+mat-nav-list a.mat-list-item-active {
+  background: rgba(14, 165, 233, 0.2);
+}
+
+/* TOOLBAR */
+mat-toolbar {
+  background: #ffffff !important;
+  min-height: 56px;
+  box-shadow: 0 1px 6px rgba(15, 23, 42, 0.08);
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+/* USER BOX (topo direito) */
+.user-box {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-right: 12px;
+}
+
+.user-pill {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.06); /* contraste melhor no toolbar branco */
+  color: #0f172a;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* CONTEÚDO */
+.content {
+  padding: 24px;
+  background: #f8fafc;
+  min-height: calc(100vh - 56px);
+}
