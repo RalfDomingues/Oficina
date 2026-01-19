@@ -1,48 +1,88 @@
-HELP.md
-target/
-.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+############################
+# FRONTEND (Angular / Node)
+############################
 
-# Spring profiles / secrets
-application-local.yml
-application-local.properties
-application.properties
-application-dev.yml
-application-prod.yml
-.env
-.env.*
-*.conf
+# Build / cache
+frontend/dist/
+frontend/tmp/
+frontend/out-tsc/
+frontend/.angular/cache/
+frontend/coverage/
 
+# Node
+frontend/node_modules/
+npm-debug.log*
+yarn-error.log*
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+# System
+.DS_Store
+Thumbs.db
 
-### IntelliJ IDEA ###
-.idea
+############################
+# BACKEND (Spring Boot / Java)
+############################
+
+# Maven / Gradle build
+backend/target/
+backend/build/
+
+# Maven wrapper
+backend/.mvn/wrapper/maven-wrapper.jar
+
+# Logs
+backend/logs/
+*.log
+*.txt
+
+############################
+# IDEs / Editors
+############################
+
+# IntelliJ
+.idea/
 *.iws
 *.iml
 *.ipr
 
-### NetBeans ###
+# Eclipse / STS
+.project
+.classpath
+.settings/
+.springBeans
+.sts4-cache/
+.apt_generated
+.factorypath
+
+# VS Code
+.vscode/
+.history/
+
+# NetBeans
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
 
-### VS Code ###
-.vscode/
+############################
+# ENV / SECRETS (NUNCA SUBIR)
+############################
 
-### Logs ###
-logs/
-*.txt
+.env
+.env.*
+*.conf
+
+# Spring profiles
+application.properties
+application-*.yml
+application-*.properties
+
+############################
+# Misc
+############################
+
+.sass-cache/
+connect.lock
+libpeerconnection.log
+testem.log
+typings/
