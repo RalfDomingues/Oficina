@@ -28,9 +28,9 @@ export type UsuarioFormDialogData =
   styleUrl: './usuario-form-dialog.component.scss',
 })
 export class UsuarioFormDialogComponent {
-  private fb = inject(FormBuilder);
-  private dialogRef = inject(MatDialogRef<UsuarioFormDialogComponent>);
-  data = inject<UsuarioFormDialogData>(MAT_DIALOG_DATA);
+  private readonly fb = inject(FormBuilder);
+  private readonly dialogRef = inject(MatDialogRef<UsuarioFormDialogComponent>);
+  private readonly data = inject<UsuarioFormDialogData>(MAT_DIALOG_DATA);
 
   readonly isEdit = this.data.mode === 'edit';
 
@@ -40,12 +40,14 @@ export class UsuarioFormDialogComponent {
     return this.data.mode === 'edit' ? this.data.usuario : null;
   }
 
+  /**
+   * Form do dialog de usuário.
+   * - Create: senha obrigatória.
+   * - Edit: senha opcional (quando vazia, não altera no backend).
+   */
   form = this.fb.group({
     nome: [this.usuarioEditado?.nome ?? '', [Validators.required, Validators.minLength(2)]],
-    email: [
-      this.usuarioEditado?.email ?? '',
-      [Validators.required, Validators.email],
-    ],
+    email: [this.usuarioEditado?.email ?? '', [Validators.required, Validators.email]],
     senha: ['', this.isEdit ? [] : [Validators.required, Validators.minLength(3)]],
     perfil: [this.usuarioEditado?.perfil ?? 'ADMIN', [Validators.required]],
     ativo: [this.usuarioEditado?.ativo ?? true],
@@ -55,6 +57,10 @@ export class UsuarioFormDialogComponent {
     this.dialogRef.close(null);
   }
 
+  /**
+   * Retorna o payload para o componente pai.
+   * No edit, envia senha como null quando vazia para indicar "não alterar".
+   */
   salvar(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();

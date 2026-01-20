@@ -1,4 +1,3 @@
-// veiculo-form-dialog.component.ts
 import { Component, Inject, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -13,7 +12,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 
 import { Veiculo, TipoVeiculo } from '../../../shared/models/veiculo.model';
 import { VeiculoService, VeiculoCreateDTO, VeiculoUpdateDTO } from '../data/veiculo.service';
-
 import { ClienteService } from '../../clientes/data/cliente.service';
 import { Cliente } from '../../../shared/models/cliente.model';
 
@@ -44,27 +42,36 @@ export class VeiculoFormDialogComponent implements OnInit {
 
   private fb = inject(FormBuilder);
 
+  /** Tipos aceitos pelo backend */
   tipos: TipoVeiculo[] = ['CARRO', 'MOTO', 'CAMINHAO', 'UTILITARIO'];
+
+  /** Lista de clientes ativos para seleção */
   clientes: Cliente[] = [];
 
-  // Mercosul: ABC1D23 (regex simples)
+  /** Regex simples para placa padrão Mercosul (ex: ABC1D23) */
   private readonly placaRegex = /^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$/;
 
-  // Form sem o campo ativo
+  /**
+   * Formulário do veículo.
+   * Campo `ativo` não é exposto aqui (controlado em outro fluxo).
+   */
   form = this.fb.group({
     placa: ['', [Validators.required, Validators.pattern(this.placaRegex)]],
     modelo: ['', [Validators.required]],
     marca: ['', [Validators.required]],
-    ano: [new Date().getFullYear(), [Validators.required, Validators.min(1900), Validators.max(2100)]],
+    ano: [
+      new Date().getFullYear(),
+      [Validators.required, Validators.min(1900), Validators.max(2100)],
+    ],
     tipo: [null as TipoVeiculo | null, [Validators.required]],
     clienteId: [null as number | null, [Validators.required]],
   });
 
   constructor(
-    private veiculoService: VeiculoService,
-    private clienteService: ClienteService,
-    private snack: MatSnackBar,
-    private dialogRef: MatDialogRef<VeiculoFormDialogComponent>,
+    private readonly veiculoService: VeiculoService,
+    private readonly clienteService: ClienteService,
+    private readonly snack: MatSnackBar,
+    private readonly dialogRef: MatDialogRef<VeiculoFormDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: VeiculoFormDialogData
   ) { }
 
@@ -85,16 +92,16 @@ export class VeiculoFormDialogComponent implements OnInit {
         clienteId: v.clienteId,
       });
 
-      // Desabilita placa e cliente no modo edição
+      // No modo edição, placa e cliente não podem ser alterados
       this.form.controls.placa.disable();
       this.form.controls.clienteId.disable();
     }
   }
 
-  carregarClientes(): void {
+  /** Carrega clientes ativos para o select */
+  private carregarClientes(): void {
     this.clienteService.listarTodos().subscribe({
       next: (list: Cliente[]) => {
-        // Filtra apenas clientes ativos e ordena por nome
         this.clientes = (list ?? [])
           .filter((c: any) => c?.ativo !== false)
           .sort((a, b) => (a.nome ?? '').localeCompare(b.nome ?? '', 'pt-BR'));
@@ -106,6 +113,7 @@ export class VeiculoFormDialogComponent implements OnInit {
     });
   }
 
+  /** Cria ou atualiza o veículo conforme o modo */
   salvar(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -115,6 +123,7 @@ export class VeiculoFormDialogComponent implements OnInit {
 
     this.loading = true;
 
+    // CREATE
     if (!this.isEdit) {
       const raw = this.form.getRawValue();
 
@@ -142,7 +151,7 @@ export class VeiculoFormDialogComponent implements OnInit {
       return;
     }
 
-    // Edit
+    // EDIT
     const v = (this.data as any).veiculo as Veiculo;
     const raw = this.form.getRawValue();
 

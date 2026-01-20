@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { forkJoin } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 
 import { DashboardService } from './data/dashboard.service';
 import { OrdemStatusResumo, OrdensPorMes, ServicoMaisUsado } from './data/dashboard.models';
@@ -15,20 +16,22 @@ type StatCard = { label: string; value: string };
   styleUrl: './dashboard.component.scss',
 })
 export class DashboardComponent implements OnInit {
-  private dash = inject(DashboardService);
+  private readonly dash = inject(DashboardService);
 
   loading = true;
   error: string | null = null;
 
-  // dados crus
   ordensStatus: OrdemStatusResumo[] = [];
   ordensPorMes: OrdensPorMes[] = [];
   servicosMaisUsados: ServicoMaisUsado[] = [];
   faturamentoTotal = 0;
 
-  // dados “prontos” pra UI
   cards: StatCard[] = [];
 
+  /**
+   * Carrega o resumo do dashboard em paralelo (status, faturamento, serviços e ordens por mês).
+   * Após carregar, normaliza/ordena os dados e monta os cards de estatística.
+   */
   ngOnInit(): void {
     this.loading = true;
     this.error = null;
@@ -38,44 +41,58 @@ export class DashboardComponent implements OnInit {
       faturamento: this.dash.faturamentoTotal(),
       servicos: this.dash.servicosMaisUsados(),
       porMes: this.dash.ordensPorMes(),
-    }).subscribe({
-      next: ({ ordensStatus, faturamento, servicos, porMes }) => {
-        this.ordensStatus = ordensStatus;
-        this.faturamentoTotal = Number(faturamento.total ?? 0);
-        this.servicosMaisUsados = servicos;
-        this.ordensPorMes = porMes;
+    })
+      .pipe(finalize(() => (this.loading = false)))
+      .subscribe({
+        next: ({ ordensStatus, faturamento, servicos, porMes }) => {
+          this.ordensStatus = ordensStatus ?? [];
+          this.faturamentoTotal = Number(faturamento?.total ?? 0);
+          this.servicosMaisUsados = this.ordenarServicosMaisUsados(servicos ?? []);
+          this.ordensPorMes = this.ordenarOrdensPorMes(porMes ?? []);
 
-        this.buildCards();
-
-        this.loading = false;
-      },
-      error: () => {
-        this.error = 'Não foi possível carregar o dashboard.';
-        this.loading = false;
-      },
-    });
+          this.buildCards();
+        },
+        error: () => {
+          this.error = 'Nao foi possivel carregar o dashboard.';
+        },
+      });
   }
 
+  /** Ordena serviços por quantidade e limita o Top 10. */
+  private ordenarServicosMaisUsados(lista: ServicoMaisUsado[]): ServicoMaisUsado[] {
+    return [...(lista ?? [])]
+      .sort((a, b) => (b.quantidade ?? 0) - (a.quantidade ?? 0))
+      .slice(0, 10);
+  }
+
+  /** Ordena meses do mais recente para o mais antigo e limita os últimos 10. */
+  private ordenarOrdensPorMes(lista: OrdensPorMes[]): OrdensPorMes[] {
+    return [...(lista ?? [])]
+      .sort((a, b) => this.valorMes(b.mes) - this.valorMes(a.mes))
+      .slice(0, 10);
+  }
+
+  /** Converte "YYYY-MM" em timestamp para ordenação cronológica. */
+  private valorMes(mes: string): number {
+    return new Date(`${mes}-01`).getTime();
+  }
+
+  /** Monta cards a partir do resumo por status e faturamento total. */
   private buildCards(): void {
-  const getQtd = (status: string) =>
-    this.ordensStatus.find((s) => s.status === status)?.quantidade ?? 0;
+    const getQtd = (status: string) =>
+      this.ordensStatus.find((s) => s.status === status)?.quantidade ?? 0;
 
-  const aberta = getQtd('ABERTA');           // ← Adicionar
-  const emAndamento = getQtd('EM_ANDAMENTO');
-  const concluida = getQtd('CONCLUIDA');
-  const cancelada = getQtd('CANCELADA');
+    this.cards = [
+      { label: 'Em aberto', value: String(getQtd('ABERTA')) },
+      { label: 'Em andamento', value: String(getQtd('EM_ANDAMENTO')) },
+      { label: 'Concluidas', value: String(getQtd('CONCLUIDA')) },
+      { label: 'Canceladas', value: String(getQtd('CANCELADA')) },
+      { label: 'Faturamento total', value: this.formatMoney(this.faturamentoTotal) },
+    ];
+  }
 
-  this.cards = [
-    { label: 'Em aberto', value: String(aberta) },      // ← Adicionar aqui PRIMEIRO
-    { label: 'Em andamento', value: String(emAndamento) },
-    { label: 'Concluídas', value: String(concluida) },
-    { label: 'Canceladas', value: String(cancelada) },
-    { label: 'Faturamento total', value: this.formatMoney(this.faturamentoTotal) },
-  ];
-}
-
+  /** Formata "YYYY-MM" para "MM/YYYY" para exibição. */
   formatMes(mes: string): string {
-    // "2025-12" -> "12/2025"
     const [y, m] = mes.split('-');
     if (!y || !m) return mes;
     return `${m}/${y}`;

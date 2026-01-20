@@ -2,33 +2,35 @@
   <div class="header">
     <div>
       <h2>Clientes</h2>
-      <p class="sub">Gerencie cadastros e visualize informações rapidamente.</p>
+      <p class="sub">Gerencie cadastros e visualize informacoes rapidamente.</p>
     </div>
-    <button mat-raised-button color="primary" (click)="abrirNovo()" *ngIf="canWrite">
-      <mat-icon>add</mat-icon>
-      Novo cliente
-    </button>
-  </div>
 
-  <!-- TABS -->
-  <mat-tab-group [(selectedIndex)]="abaSelecionada" class="tabs-section">
-
-    <!-- ABA 1: ATIVOS -->
-    <mat-tab label="Ativos ({{ clientesAtivos.length }})">
-      <div class="toolbar">
-        <mat-form-field appearance="outline" class="search">
-          <mat-label>Pesquisar</mat-label>
+    <div class="header-actions">
+      <div class="header-filtros">
+        <mat-form-field appearance="outline" class="campo-pesquisa">
           <mat-icon matPrefix>search</mat-icon>
-          <input matInput [(ngModel)]="search" (ngModelChange)="applyFilter()" placeholder="Nome, email, telefone..." />
-          <button *ngIf="search" mat-icon-button matSuffix (click)="search=''; applyFilter()" aria-label="Limpar">
+          <input matInput [(ngModel)]="search" (ngModelChange)="onSearchChange()"
+            placeholder="Pesquisar nome, email ou telefone..." aria-label="Pesquisar clientes" />
+          <button *ngIf="search" mat-icon-button matSuffix (click)="search=''; onSearchChange()"
+            aria-label="Limpar">
             <mat-icon>close</mat-icon>
           </button>
         </mat-form-field>
       </div>
 
+      <button class="botao-criar" mat-raised-button color="primary" (click)="abrirNovo()" *ngIf="canWrite">
+        <mat-icon>add</mat-icon>
+        Novo cliente
+      </button>
+    </div>
+  </div>
+
+  <mat-tab-group [(selectedIndex)]="abaSelecionada" (selectedIndexChange)="onTabChange($event)" class="tabs-section">
+
+    <mat-tab [label]="'Ativos (' + totalAtivosElementos + ')'">
       <mat-card class="table-card">
         <div class="table-wrap" [class.loading]="loading">
-          <table mat-table [dataSource]="clientesAtivos" class="table-base">
+          <table mat-table [dataSource]="clientesAtivosTabela" class="table-base">
             <ng-container matColumnDef="nome">
               <th mat-header-cell *matHeaderCellDef>Nome</th>
               <td mat-cell *matCellDef="let row" class="col-nome truncate">{{ row.nome }}</td>
@@ -45,7 +47,7 @@
             </ng-container>
 
             <ng-container matColumnDef="acoes">
-              <th mat-header-cell *matHeaderCellDef>Ações</th>
+              <th mat-header-cell *matHeaderCellDef>Acoes</th>
               <td mat-cell *matCellDef="let row" class="col-acoes">
                 <button mat-icon-button (click)="verDetalhes(row)" aria-label="Ver">
                   <mat-icon>visibility</mat-icon>
@@ -59,18 +61,31 @@
               </td>
             </ng-container>
 
-            <tr mat-header-row *matHeaderRowDef="['nome', 'email', 'telefone', 'acoes']"></tr>
-            <tr mat-row *matRowDef="let row; columns: ['nome', 'email', 'telefone', 'acoes']"></tr>
+            <tr mat-header-row *matHeaderRowDef="colunasTabela"></tr>
+            <tr mat-row *matRowDef="let row; columns: colunasTabela"></tr>
           </table>
+
+          <div class="no-data" *ngIf="!loading && clientesAtivosTabela.data.length === 0">
+            <mat-icon>person_off</mat-icon>
+            <p>Nenhum cliente ativo encontrado</p>
+          </div>
+
+          <div class="loading-overlay" *ngIf="loading">
+            <mat-spinner diameter="40"></mat-spinner>
+          </div>
         </div>
+
+        <mat-paginator [length]="totalAtivosElementos" [pageIndex]="paginaIndiceAtivos"
+          [pageSize]="tamanhoPaginaAtivos" [pageSizeOptions]="[5, 10, 20, 50]"
+          (page)="onPageChangeAtivos($event)">
+        </mat-paginator>
       </mat-card>
     </mat-tab>
 
-    <!-- ABA 2: INATIVOS -->
-    <mat-tab label="Inativos ({{ clientesInativos.length }})">
+    <mat-tab [label]="'Inativos (' + totalInativosElementos + ')'">
       <mat-card class="table-card">
         <div class="table-wrap" [class.loading]="loading">
-          <table mat-table [dataSource]="clientesInativos" class="table-base">
+          <table mat-table [dataSource]="clientesInativosTabela" class="table-base">
             <ng-container matColumnDef="nome">
               <th mat-header-cell *matHeaderCellDef>Nome</th>
               <td mat-cell *matCellDef="let row" class="col-nome truncate">{{ row.nome }}</td>
@@ -98,10 +113,24 @@
               </td>
             </ng-container>
 
-            <tr mat-header-row *matHeaderRowDef="['nome', 'email', 'telefone', 'acoes']"></tr>
-            <tr mat-row *matRowDef="let row; columns: ['nome', 'email', 'telefone', 'acoes']"></tr>
+            <tr mat-header-row *matHeaderRowDef="colunasTabela"></tr>
+            <tr mat-row *matRowDef="let row; columns: colunasTabela"></tr>
           </table>
+
+          <div class="no-data" *ngIf="!loading && clientesInativosTabela.data.length === 0">
+            <mat-icon>person_add</mat-icon>
+            <p>Todos os clientes estao ativos</p>
+          </div>
+
+          <div class="loading-overlay" *ngIf="loading">
+            <mat-spinner diameter="40"></mat-spinner>
+          </div>
         </div>
+
+        <mat-paginator [length]="totalInativosElementos" [pageIndex]="paginaIndiceInativos"
+          [pageSize]="tamanhoPaginaInativos" [pageSizeOptions]="[5, 10, 20, 50]"
+          (page)="onPageChangeInativos($event)">
+        </mat-paginator>
       </mat-card>
     </mat-tab>
 

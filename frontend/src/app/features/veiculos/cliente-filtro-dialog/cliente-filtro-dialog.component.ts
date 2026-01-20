@@ -39,8 +39,8 @@ export class ClienteFiltroDialogComponent {
   filtered$!: Observable<ClienteOption[]>;
 
   constructor(
-    private ref: MatDialogRef<ClienteFiltroDialogComponent>,
-    private clienteService: ClienteService,
+    private readonly ref: MatDialogRef<ClienteFiltroDialogComponent>,
+    private readonly clienteService: ClienteService,
     @Inject(MAT_DIALOG_DATA) public data: { initialId?: number | null }
   ) {
     if (data?.initialId) this.query.setValue(String(data.initialId));
@@ -59,18 +59,24 @@ export class ClienteFiltroDialogComponent {
     });
   }
 
+  /** Indica se existe algo preenchido no campo (texto ou opção selecionada). */
   get temValor(): boolean {
     const v = this.query.value;
     if (v == null) return false;
     if (typeof v === 'string') return v.trim().length > 0;
-    return true; // ClienteOption
+    return true;
   }
 
-  limpar() {
+  limpar(): void {
     this.query.setValue('');
   }
 
-  private setupFilterStream() {
+  /**
+   * Stream do autocomplete:
+   * - texto: filtra por nome ou por id (quando o usuário digita números)
+   * - objeto: mantém a seleção
+   */
+  private setupFilterStream(): void {
     this.filtered$ = this.query.valueChanges.pipe(
       startWith(this.query.value),
       map((value) => this.filter(value))
@@ -78,9 +84,7 @@ export class ClienteFiltroDialogComponent {
   }
 
   private filter(value: string | ClienteOption | null | undefined): ClienteOption[] {
-    if (value && typeof value === 'object') {
-      return [value];
-    }
+    if (value && typeof value === 'object') return [value];
 
     const txt = String(value ?? '').trim().toLowerCase();
     if (!txt) return this.clientes.slice(0, 20);
@@ -96,16 +100,21 @@ export class ClienteFiltroDialogComponent {
       .slice(0, 20);
   }
 
-  displayWith = (c: ClienteOption | string | null) => {
+  displayWith = (c: ClienteOption | string | null): string => {
     if (!c) return '';
     return typeof c === 'string' ? c : c.nome;
   };
 
-  selecionar(c: ClienteOption) {
+  selecionar(c: ClienteOption): void {
     this.ref.close({ clienteId: c.id });
   }
 
-  aplicarDigitado() {
+  /**
+   * Permite aplicar o que foi digitado:
+   * - número => tenta usar como id
+   * - texto => pega o primeiro cliente cujo nome contém o termo
+   */
+  aplicarDigitado(): void {
     const v = this.query.value;
 
     if (v && typeof v === 'object') {
@@ -118,20 +127,16 @@ export class ClienteFiltroDialogComponent {
 
     if (/^\d+$/.test(raw)) {
       const id = Number(raw);
-      if (Number.isFinite(id) && id > 0) {
-        this.ref.close({ clienteId: id });
-      }
+      if (Number.isFinite(id) && id > 0) this.ref.close({ clienteId: id });
       return;
     }
 
     const txt = raw.toLowerCase();
     const first = this.clientes.find((c) => (c.nome ?? '').toLowerCase().includes(txt));
-    if (first) {
-      this.ref.close({ clienteId: first.id });
-    }
+    if (first) this.ref.close({ clienteId: first.id });
   }
 
-  cancelar() {
+  cancelar(): void {
     this.ref.close(null);
   }
 }

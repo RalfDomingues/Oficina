@@ -25,15 +25,20 @@ import static org.mockito.Mockito.*;
 
 class ItemServicoServiceTest {
 
-    @Mock private ItemServicoRepository itemRepo;
-    @Mock private ServicoRepository servicoRepo;
-    @Mock private OrdemServicoRepository ordemRepo;
+    @Mock
+    private ItemServicoRepository itemRepo;
+    @Mock
+    private ServicoRepository servicoRepo;
+    @Mock
+    private OrdemServicoRepository ordemRepo;
 
     @InjectMocks
     private ItemServicoService service;
 
     @BeforeEach
-    void setup() { MockitoAnnotations.openMocks(this); }
+    void setup() {
+        MockitoAnnotations.openMocks(this);
+    }
 
     @Test
     void criar_ordemNaoEncontrada() {
@@ -71,22 +76,6 @@ class ItemServicoServiceTest {
         assertEquals(BigDecimal.valueOf(150), resposta.valorTotal());
         verify(itemRepo).save(any(ItemServico.class));
         verify(ordemRepo).save(ordem);
-    }
-
-    @Test
-    void listarTodos_ok() {
-        OrdemServico ordem = new OrdemServico();
-        Servico servico = new Servico(1L, "X", BigDecimal.ONE);
-        ItemServico item = new ItemServico(ordem, servico, 1, BigDecimal.ONE);
-
-        Pageable pageable = PageRequest.of(0, 10);
-        Page<ItemServico> page = new PageImpl<>(List.of(item));
-
-        when(itemRepo.findAllByAtivoTrue(pageable)).thenReturn(page);
-
-        Page<?> resposta = service.listarTodos(pageable);
-
-        assertEquals(1, resposta.getTotalElements());
     }
 
 

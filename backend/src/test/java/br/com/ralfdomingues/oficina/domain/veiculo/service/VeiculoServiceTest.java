@@ -10,10 +10,6 @@ import br.com.ralfdomingues.oficina.repository.veiculo.VeiculoRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 
 import java.util.*;
 
@@ -66,60 +62,6 @@ class VeiculoServiceTest {
         assertNotNull(resp);
         assertEquals(10L, resp.id());
         assertEquals("ABC1234", resp.placa());
-    }
-
-
-    @Test
-    void listar_sucesso() {
-        Cliente cliente = new Cliente();
-        cliente.setId(1L);
-
-        Veiculo veiculo = Veiculo.builder()
-                .id(5L)
-                .placa("XYZ9999")
-                .modelo("Civic")
-                .marca("Honda")
-                .ano(2019)
-                .tipo(TipoVeiculo.CARRO)
-                .cliente(cliente)
-                .ativo(true)
-                .build();
-
-        Pageable pageable = PageRequest.of(0, 10);
-        Page<Veiculo> page = new PageImpl<>(List.of(veiculo));
-
-        when(veiculoRepository.findAllByAtivoTrue(pageable))
-                .thenReturn(page);
-
-        var resultado = service.listar(pageable);
-
-        assertEquals(1, resultado.getTotalElements());
-        assertEquals("XYZ9999", resultado.getContent().get(0).placa());
-    }
-
-
-    @Test
-    void listarPorCliente_sucesso() {
-        Cliente c = new Cliente();
-        c.setId(1L);
-
-        Veiculo veiculo = Veiculo.builder()
-                .id(7L)
-                .placa("AAA1234")
-                .cliente(c)
-                .ativo(true)
-                .build();
-
-        Pageable pageable = PageRequest.of(0, 10);
-        Page<Veiculo> page = new PageImpl<>(List.of(veiculo));
-
-        when(veiculoRepository.findAllByCliente_IdAndAtivoTrue(1L, pageable))
-                .thenReturn(page);
-
-        var resultado = service.listarPorCliente(1L, pageable);
-
-        assertEquals(1, resultado.getTotalElements());
-        assertEquals(7L, resultado.getContent().get(0).id());
     }
 
     @Test

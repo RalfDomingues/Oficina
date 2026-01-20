@@ -23,17 +23,20 @@ export type ConfirmDialogData = {
 
     <div mat-dialog-actions align="end">
       <button mat-button (click)="close(false)">{{ data.cancelText ?? 'Cancelar' }}</button>
-      <button mat-raised-button color="warn" (click)="close(true)">{{ data.confirmText ?? 'Confirmar' }}</button>
+      <button mat-raised-button color="warn" (click)="close(true)">
+        {{ data.confirmText ?? 'Confirmar' }}
+      </button>
     </div>
-  `
+  `,
 })
 export class ConfirmDialogComponent {
   constructor(
-    private dialogRef: MatDialogRef<ConfirmDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: ConfirmDialogData
+    private readonly dialogRef: MatDialogRef<ConfirmDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public readonly data: ConfirmDialogData
   ) {}
 
-  close(value: boolean) {
+  /** Fecha o modal retornando a confirmação do usuário. */
+  close(value: boolean): void {
     this.dialogRef.close(value);
   }
 }

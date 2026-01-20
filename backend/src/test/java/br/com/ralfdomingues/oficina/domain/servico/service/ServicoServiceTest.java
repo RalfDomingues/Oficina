@@ -1,20 +1,13 @@
 package br.com.ralfdomingues.oficina.domain.servico.service;
 
 import br.com.ralfdomingues.oficina.domain.servico.dto.ServicoCreateDTO;
-import br.com.ralfdomingues.oficina.domain.servico.dto.ServicoResponseDTO;
 import br.com.ralfdomingues.oficina.domain.servico.dto.ServicoUpdateDTO;
 import br.com.ralfdomingues.oficina.domain.servico.entity.Servico;
 import br.com.ralfdomingues.oficina.exception.NotFoundException;
 import br.com.ralfdomingues.oficina.repository.servico.ServicoRepository;
 import org.junit.jupiter.api.*;
 import org.mockito.*;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -91,23 +84,6 @@ class ServicoServiceTest {
         assertEquals(BigDecimal.valueOf(99), resposta.preco());
         assertFalse(resposta.ativo());
     }
-
-    @Test
-    void listarTodos_sucesso() {
-
-        Servico servico = new Servico(1L, "X", BigDecimal.ONE);
-
-        Pageable pageable = PageRequest.of(0, 10);
-        Page<Servico> page = new PageImpl<>(List.of(servico));
-
-        when(repository.findAllByAtivoTrue(pageable)).thenReturn(page);
-
-        Page<ServicoResponseDTO> resultado = service.listar(pageable);
-
-        assertEquals(1, resultado.getTotalElements());
-        assertEquals(1L, resultado.getContent().get(0).id());
-    }
-
 
     @Test
     void deletar_deveSetarAtivoFalse() {

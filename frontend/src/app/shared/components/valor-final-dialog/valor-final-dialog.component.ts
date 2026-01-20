@@ -34,15 +34,19 @@ import { MatInputModule } from '@angular/material/input';
 
     <div mat-dialog-actions align="end">
       <button mat-button (click)="ref.close(null)">Cancelar</button>
-      <button mat-raised-button color="primary"
-              [disabled]="form.invalid"
-              (click)="ref.close(form.value.valor)">
+      <button
+        mat-raised-button
+        color="primary"
+        [disabled]="form.invalid"
+        (click)="confirmar()"
+      >
         Confirmar
       </button>
     </div>
   `,
 })
 export class ValorFinalDialogComponent {
+  /** Form simples para validar o valor final antes de concluir a OS. */
   form: FormGroup;
 
   constructor(
@@ -53,5 +57,10 @@ export class ValorFinalDialogComponent {
     this.form = fb.group({
       valor: [data?.valorAtual ?? null, [Validators.required, Validators.min(0.01)]],
     });
+  }
+
+  /** Fecha o modal retornando o valor informado (number) ou null. */
+  confirmar(): void {
+    this.ref.close(this.form.value.valor);
   }
 }

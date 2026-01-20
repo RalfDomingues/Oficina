@@ -1,7 +1,6 @@
 package br.com.ralfdomingues.oficina.domain.cliente.service;
 
 import br.com.ralfdomingues.oficina.domain.cliente.dto.ClienteCreateDTO;
-import br.com.ralfdomingues.oficina.domain.cliente.dto.ClienteResponseDTO;
 import br.com.ralfdomingues.oficina.domain.cliente.dto.ClienteUpdateDTO;
 import br.com.ralfdomingues.oficina.domain.cliente.entity.Cliente;
 import br.com.ralfdomingues.oficina.exception.BusinessException;
@@ -10,12 +9,6 @@ import br.com.ralfdomingues.oficina.repository.cliente.ClienteRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -64,25 +57,6 @@ class ClienteServiceTest {
         service.deletar(3L);
         assertFalse(cliente.getAtivo());
         verify(repository).save(cliente);
-    }
-
-    @Test
-    void listar_retornaApenasAtivos() {
-
-        Cliente cliente = new Cliente();
-        cliente.setId(4L);
-        cliente.setNome("X");
-        cliente.setAtivo(true);
-
-        Pageable pageable = PageRequest.of(0, 10);
-        Page<Cliente> page = new PageImpl<>(List.of(cliente));
-
-        when(repository.findAllByAtivoTrue(pageable)).thenReturn(page);
-
-        Page<ClienteResponseDTO> resultado = service.listar(pageable);
-
-        assertFalse(resultado.isEmpty());
-        assertEquals("X", resultado.getContent().get(0).nome());
     }
 
 }

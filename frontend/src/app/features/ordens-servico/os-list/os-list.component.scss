@@ -1,6 +1,6 @@
 .page {
   width: 100%;
-  max-width: none; /* << libera largura */
+  max-width: none;
   margin: 0;
 }
 
@@ -25,6 +25,22 @@
   font-size: 13px;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.header-filtros {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.campo-pesquisa { width: 320px; max-width: 100%; }
+.botao-criar { min-height: 40px; }
+
 .card {
   border-radius: 14px;
   overflow: hidden;
@@ -34,13 +50,13 @@
 
 .table-wrap {
   width: 100%;
-  overflow: auto; /* scroll horizontal se precisar */
+  overflow: auto;
 }
 
-/* ===== TABELA ===== */
+/* TABELA */
 table {
   width: 100%;
-  min-width: 1100px; /* garante espaço pra colunas */
+  min-width: 1100px;
   table-layout: fixed;
 }
 
@@ -52,12 +68,13 @@ table {
   text-overflow: ellipsis;
 }
 
+
+
 .col-descricao {
   white-space: normal !important;
   line-height: 1.2;
 }
 
-/* larguras principais */
 .mat-mdc-column-id { width: 80px; }
 .mat-mdc-column-status { width: 160px; }
 .mat-mdc-column-dataAbertura { width: 140px; }
@@ -65,7 +82,7 @@ table {
 .mat-mdc-column-cliente { width: 220px; }
 .mat-mdc-column-veiculo { width: 220px; }
 
-/* ===== AÇÕES ===== */
+/* ACOES */
 .actions-cell { overflow: visible; }
 
 .actions {
@@ -86,7 +103,7 @@ table {
 .actions button[mat-button] { padding: 0 10px; }
 .actions button[mat-raised-button] { padding: 0 14px; }
 
-/* ===== STATUS ===== */
+/* STATUS */
 .status-pill {
   padding: 6px 10px;
   border-radius: 999px;
@@ -103,19 +120,6 @@ table {
 @media (max-width: 900px) {
   .header { flex-direction: column; align-items: stretch; }
   .mat-mdc-column-acoes { width: 220px; }
-}
-
-.toolbar {
-  display: flex;
-  justify-content: flex-end;margin-bottom: 12px;
-}
-
-.search {
-  width: min(560px, 100%);
-}
-
-.search-info{
-  font-size: 12px;
-  opacity: .7;
-  padding: 0 12px 10px 12px;
+  .header-actions { justify-content: flex-end; flex-wrap: wrap; }
+  .campo-pesquisa { width: 100%; }
 }

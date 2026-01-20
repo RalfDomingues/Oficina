@@ -75,7 +75,7 @@ public class ItemServicoService {
      */
     @Transactional(readOnly = true)
     public Page<ItemServicoResponseDTO> listarTodos(Pageable pageable) {
-        return itemRepo.findAllByAtivoTrue(pageable)
+        return itemRepo.findAll(pageable)
                 .map(ItemServicoResponseDTO::new);
     }
 

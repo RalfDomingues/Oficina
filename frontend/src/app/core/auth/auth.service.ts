@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
+
 import { LoginRequest, LoginResponse } from './auth.model';
 import { environment } from '../../../environments/environment';
 
@@ -18,11 +19,13 @@ export class AuthService {
     private readonly TOKEN_KEY = 'mf_token';
     private readonly USER_KEY = 'mf_user';
 
-    // TODO: mover p/ environment depois
     private readonly API = environment.apiUrl;
 
     constructor(private http: HttpClient) { }
 
+    /**
+     * Autentica o usuário e persiste token + dados básicos no localStorage.
+     */
     login(payload: LoginRequest): Observable<LoginResponse> {
         return this.http.post<LoginResponse>(`${this.API}/auth/login`, payload).pipe(
             tap((res) => {
@@ -40,15 +43,18 @@ export class AuthService {
         );
     }
 
+    /** Encerra a sessão local removendo token e usuário. */
     logout(): void {
         localStorage.removeItem(this.TOKEN_KEY);
         localStorage.removeItem(this.USER_KEY);
     }
 
+    /** Retorna o token JWT salvo (se existir). */
     getToken(): string | null {
         return localStorage.getItem(this.TOKEN_KEY);
     }
 
+    /** Retorna o usuário atual salvo no storage. */
     getUser(): CurrentUser | null {
         const raw = localStorage.getItem(this.USER_KEY);
         if (!raw) return null;
@@ -60,19 +66,26 @@ export class AuthService {
         }
     }
 
+    /** Perfil do usuário logado. */
     getPerfil(): Perfil | null {
         return this.getUser()?.perfil ?? null;
     }
 
+    /** Verifica se o usuário possui exatamente o perfil informado. */
     hasRole(role: Perfil): boolean {
         return this.getPerfil() === role;
     }
 
+    /** Verifica se o usuário possui ao menos um dos perfis informados. */
     hasAnyRole(...roles: Perfil[]): boolean {
         const perfil = this.getPerfil();
         return !!perfil && roles.includes(perfil);
     }
 
+    /**
+     * Indica se o usuário está autenticado.
+     * Considera token inexistente ou expirado como não logado.
+     */
     isLoggedIn(): boolean {
         const token = this.getToken();
         if (!token) return false;
@@ -85,14 +98,18 @@ export class AuthService {
         return true;
     }
 
+    /**
+     * Decodifica o payload do JWT (base64url).
+     * Não valida assinatura — uso apenas para leitura do `exp`.
+     */
     private decodeJwtPayload(token: string): any | null {
         try {
             const base64Url = token.split('.')[1];
             if (!base64Url) return null;
 
-            // base64url -> base64
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
-                + '==='.slice((base64Url.length + 3) % 4);
+            const base64 =
+                base64Url.replace(/-/g, '+').replace(/_/g, '/') +
+                '==='.slice((base64Url.length + 3) % 4);
 
             const json = decodeURIComponent(
                 atob(base64)
@@ -107,12 +124,16 @@ export class AuthService {
         }
     }
 
+    /**
+     * Verifica expiração do token via claim `exp`.
+     * Se não conseguir ler o payload ou não existir `exp`, não força expiração.
+     */
     isTokenExpired(token?: string | null): boolean {
         const t = token ?? this.getToken();
         if (!t) return true;
 
         const payload = this.decodeJwtPayload(t);
-        if (!payload) return false; // não “chuta” como expirado se não conseguir ler
+        if (!payload) return false;
 
         const exp: number | undefined = payload?.exp;
         if (!exp) return false;

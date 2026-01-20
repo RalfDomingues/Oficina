@@ -6,6 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { HttpErrorResponse } from '@angular/common/http';
+import { finalize } from 'rxjs/operators';
 
 import { ClienteService, ClienteCreateDTO, ClienteUpdateDTO } from '../data/cliente.service';
 import { Cliente } from '../../../shared/models/cliente.model';
@@ -29,15 +30,17 @@ export type ClienteFormDialogData =
   styleUrl: './cliente-form-dialog.component.scss',
 })
 export class ClienteFormDialogComponent {
-  private fb = inject(FormBuilder);
-  private clienteService = inject(ClienteService);
+  private readonly fb = inject(FormBuilder);
+  private readonly clienteService = inject(ClienteService);
 
+  // Estado de UI: spinner e mensagem de erro exibida no dialog
   loading = false;
   errorMsg: string | null = null;
 
+  // Define comportamento do dialog (criação ou edição)
   readonly isEdit: boolean;
 
-  // ✅ agora tem cpf obrigatório (11 dígitos)
+  // CPF é obrigatório e aceitamos apenas 11 dígitos (sem máscara no valor final)
   form = this.fb.group({
     nome: ['', [Validators.required, Validators.minLength(2)]],
     cpf: ['', [Validators.required, Validators.pattern(/^\d{11}$/)]],
@@ -46,7 +49,7 @@ export class ClienteFormDialogComponent {
   });
 
   constructor(
-    private dialogRef: MatDialogRef<ClienteFormDialogComponent, Cliente | null>,
+    private readonly dialogRef: MatDialogRef<ClienteFormDialogComponent, Cliente | null>,
     @Inject(MAT_DIALOG_DATA) public data: ClienteFormDialogData
   ) {
     this.isEdit = data.mode === 'edit';
@@ -54,14 +57,14 @@ export class ClienteFormDialogComponent {
     if (data.mode === 'edit') {
       const c = data.cliente;
 
+      // Carrega dados no form; CPF fica somente leitura para evitar inconsistência no back
       this.form.patchValue({
         nome: c?.nome ?? '',
-        cpf: String((c as any)?.cpf ?? '').replace(/\D/g, ''),
+        cpf: this.onlyDigits((c as any)?.cpf).slice(0, 11),
         email: (c as any)?.email ?? '',
         telefone: (c as any)?.telefone ?? '',
       });
 
-      // ✅ normalmente CPF não muda (e evita problemas no back)
       this.form.controls.cpf.disable();
     }
   }
@@ -70,15 +73,16 @@ export class ClienteFormDialogComponent {
     this.dialogRef.close(null);
   }
 
+  // Garante que CPF fique sempre com dígitos e limite 11
   onCpfInput(ev: Event): void {
     const input = ev.target as HTMLInputElement;
-    const digits = (input.value ?? '').replace(/\D/g, '').slice(0, 11);
-    this.form.patchValue({ cpf: digits }, { emitEvent: false });
+    this.form.patchValue({ cpf: this.onlyDigits(input.value).slice(0, 11) }, { emitEvent: false });
   }
 
+  // Máscara simples em tempo real; ao salvar, enviamos apenas dígitos
   onTelefoneInput(ev: Event): void {
     const input = ev.target as HTMLInputElement;
-    const digits = (input.value ?? '').replace(/\D/g, '').slice(0, 11);
+    const digits = this.onlyDigits(input.value).slice(0, 11);
 
     let masked = digits;
 
@@ -93,21 +97,22 @@ export class ClienteFormDialogComponent {
     this.form.patchValue({ telefone: masked }, { emitEvent: false });
   }
 
+  // Fluxo: valida -> normaliza campos -> create ou update -> fecha dialog com retorno
   submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
 
-    this.loading = true;
     this.errorMsg = null;
+    this.loading = true;
 
     const raw = this.form.getRawValue();
 
     const nome = (raw.nome ?? '').trim();
-    const cpf = String(raw.cpf ?? '').replace(/\D/g, '');
+    const cpf = this.onlyDigits(raw.cpf).slice(0, 11);
     const email = (raw.email ?? '').trim();
-    const telefone = String(raw.telefone ?? '').replace(/\D/g, '');
+    const telefoneDigits = this.onlyDigits(raw.telefone).slice(0, 11);
 
     if (!nome) {
       this.loading = false;
@@ -115,7 +120,7 @@ export class ClienteFormDialogComponent {
       return;
     }
 
-    // ✅ create
+    // Create: CPF obrigatório e enviado para o back
     if (this.data.mode === 'create') {
       if (!cpf || cpf.length !== 11) {
         this.loading = false;
@@ -125,26 +130,25 @@ export class ClienteFormDialogComponent {
 
       const dto: ClienteCreateDTO = {
         nome,
-        cpf, // ✅ manda cpf
+        cpf,
         email: email || null,
-        telefone: telefone || null,
+        telefone: telefoneDigits || null,
       };
 
-      this.clienteService.criar(dto).subscribe({
-        next: (created) => {
-          this.loading = false;
-          this.dialogRef.close(created);
-        },
-        error: (err: HttpErrorResponse) => {
-          this.loading = false;
-          this.errorMsg = this.getBackendMsg(err) ?? 'Erro ao criar cliente.';
-        },
-      });
+      this.clienteService
+        .criar(dto)
+        .pipe(finalize(() => (this.loading = false)))
+        .subscribe({
+          next: (created) => this.dialogRef.close(created),
+          error: (err: HttpErrorResponse) => {
+            this.errorMsg = this.getBackendMsg(err) ?? 'Erro ao criar cliente.';
+          },
+        });
 
       return;
     }
 
-    // ✅ edit
+    // Edit: CPF não é alterado; atualiza apenas campos permitidos
     const id = this.data.cliente?.id;
     if (id == null) {
       this.loading = false;
@@ -155,28 +159,26 @@ export class ClienteFormDialogComponent {
     const dto: ClienteUpdateDTO = {
       nome,
       email: email || null,
-      telefone: telefone || null,
-      // cpf não vai no update (está desabilitado e geralmente não altera)
+      telefone: telefoneDigits || null,
     };
 
-    this.clienteService.atualizar(Number(id), dto).subscribe({
-      next: (updated) => {
-        this.loading = false;
-        this.dialogRef.close(updated);
-      },
-      error: (err: HttpErrorResponse) => {
-        this.loading = false;
-        this.errorMsg = this.getBackendMsg(err) ?? 'Erro ao atualizar cliente.';
-      },
-    });
+    this.clienteService
+      .atualizar(Number(id), dto)
+      .pipe(finalize(() => (this.loading = false)))
+      .subscribe({
+        next: (updated) => this.dialogRef.close(updated),
+        error: (err: HttpErrorResponse) => {
+          this.errorMsg = this.getBackendMsg(err) ?? 'Erro ao atualizar cliente.';
+        },
+      });
   }
 
+  // Alguns backends retornam "message" ou "mensagem" ou "erro"
   private getBackendMsg(err: HttpErrorResponse): string | null {
-    return (
-      (err.error as any)?.message ||
-      (err.error as any)?.mensagem ||
-      (err.error as any)?.erro ||
-      null
-    );
+    return (err.error as any)?.message || (err.error as any)?.mensagem || (err.error as any)?.erro || null;
+  }
+
+  private onlyDigits(value: unknown): string {
+    return String(value ?? '').replace(/\D/g, '');
   }
 }

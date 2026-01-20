@@ -10,9 +10,10 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { forkJoin, of } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
+import { catchError, map, switchMap, finalize } from 'rxjs/operators';
 
 import { OrdemServicoService } from '../data/ordem-servico.service';
 import { OrdemServico } from '../../../shared/models/ordem-servico.model';
@@ -24,10 +25,6 @@ import { ClienteService } from '../../clientes/data/cliente.service';
 import { VeiculoService } from '../../veiculos/data/veiculo.service';
 import { Veiculo } from '../../../shared/models/veiculo.model';
 import { Cliente } from '../../../shared/models/cliente.model';
-import { ValorFinalDialogComponent } from '../../../shared/components/valor-final-dialog/valor-final-dialog.component';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-
-
 
 @Component({
   selector: 'app-os-list',
@@ -43,39 +40,36 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
     MatPaginatorModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSnackBarModule
-
+    MatSnackBarModule,
   ],
   templateUrl: './os-list.component.html',
   styleUrl: './os-list.component.scss',
 })
 export class OsListComponent implements OnInit {
-  private osService = inject(OrdemServicoService);
-  private clienteService = inject(ClienteService);
-  private veiculoService = inject(VeiculoService);
-  private dialog = inject(MatDialog);
+  private readonly osService = inject(OrdemServicoService);
+  private readonly clienteService = inject(ClienteService);
+  private readonly veiculoService = inject(VeiculoService);
+  private readonly dialog = inject(MatDialog);
+  private readonly snack = inject(MatSnackBar);
 
   displayedColumns = ['id', 'cliente', 'veiculo', 'status', 'descricao', 'dataAbertura', 'acoes'];
 
-  private snack = inject(MatSnackBar);
-
-
-  // ====== dados ======
-  data: OrdemServico[] = [];      // página atual (server mode)
-  allData: OrdemServico[] = [];   // tudo (search mode)
+  // Página atual (modo normal, paginado no backend)
+  data: OrdemServico[] = [];
+  // Cache completo (usado quando a busca está ativa)
+  allData: OrdemServico[] = [];
 
   loading = false;
 
-  // paginação server (normal)
+  // paginação server-side (modo normal)
   pageIndex = 0;
   pageSize = 10;
   totalElements = 0;
 
-  // paginação local (quando search ativo)
+  // paginação client-side (quando search está ativo)
   localPageIndex = 0;
   localPageSize = 10;
 
-  // busca
   search = '';
 
   clienteNomeById = new Map<number, string>();
@@ -85,12 +79,16 @@ export class OsListComponent implements OnInit {
     this.carregar();
   }
 
-  // ====== helpers de modo ======
+  /** Quando existe termo de busca, a tela troca para “search mode” (filtro local). */
   get isSearchMode(): boolean {
     return (this.search ?? '').trim().length > 0;
   }
 
-  // data que vai pra tabela
+  /**
+   * Data exibida na tabela.
+   * - Normal: usa a página do backend.
+   * - Search: usa cache completo filtrado + paginação local.
+   */
   get tableData(): OrdemServico[] {
     if (!this.isSearchMode) return this.data;
 
@@ -100,13 +98,13 @@ export class OsListComponent implements OnInit {
     return filtered.slice(start, end);
   }
 
-  // total que vai pro paginator
+  /** Total do paginator (server mode usa totalElements, search mode usa tamanho filtrado). */
   get tableTotal(): number {
     if (!this.isSearchMode) return this.totalElements;
     return this.filtrar(this.allData).length;
   }
 
-  private showError(err: any) {
+  private showError(err: any): void {
     const msg =
       err?.error?.message ||
       err?.error?.mensagem ||
@@ -120,10 +118,8 @@ export class OsListComponent implements OnInit {
     });
   }
 
-
-
   // ====== events ======
-  onPage(ev: PageEvent) {
+  onPage(ev: PageEvent): void {
     if (this.isSearchMode) {
       this.localPageIndex = ev.pageIndex;
       this.localPageSize = ev.pageSize;
@@ -135,82 +131,91 @@ export class OsListComponent implements OnInit {
     this.carregar();
   }
 
-  onSearchChange() {
-    // entrou em search mode: zera pagina local e garante allData carregado
+  /**
+   * Alterna entre:
+   * - server mode (sem busca): paginação no backend
+   * - search mode (com busca): carrega tudo e pagina localmente
+   */
+  onSearchChange(): void {
     if (this.isSearchMode) {
       this.localPageIndex = 0;
       if (this.allData.length === 0) this.carregarTudo();
       return;
     }
 
-    // saiu do search mode: volta pro server mode
     this.localPageIndex = 0;
     this.carregar();
   }
 
-  // ====== carregar normal (paginado do backend) ======
+  /**
+   * Carrega página do backend (modo normal).
+   * Também preenche maps de nomes/modelos para exibição na tabela.
+   */
   carregar(): void {
     this.loading = true;
 
-    this.osService.listar(this.pageIndex, this.pageSize).subscribe({
-      next: (page: PageResponse<OrdemServico>) => {
-        const lista = (page.content ?? []).slice();
-        lista.sort((a, b) => this.compareOs(a, b));
+    this.osService
+      .listar(this.pageIndex, this.pageSize)
+      .pipe(finalize(() => (this.loading = false)))
+      .subscribe({
+        next: (page: PageResponse<OrdemServico>) => {
+          const lista = (page.content ?? []).slice();
+          lista.sort((a, b) => this.compareOs(a, b));
 
-        this.data = lista;
-        this.totalElements = page.totalElements ?? 0;
+          this.data = lista;
+          this.totalElements = page.totalElements ?? 0;
 
-        const clienteIds = Array.from(new Set(lista.map(o => o.clienteId).filter(Boolean)));
-        const veiculoIds = Array.from(new Set(lista.map(o => o.veiculoId).filter(Boolean)));
+          const clienteIds = Array.from(new Set(lista.map((o) => o.clienteId).filter(Boolean)));
+          const veiculoIds = Array.from(new Set(lista.map((o) => o.veiculoId).filter(Boolean)));
 
-        forkJoin({
-          clientes: clienteIds.length ? this.preencherClientes(clienteIds) : of(void 0),
-          veiculos: veiculoIds.length ? this.preencherVeiculos(veiculoIds) : of(void 0),
-        }).subscribe({
-          next: () => { this.loading = false; },
-          error: () => { this.loading = false; }
-        });
-      },
-      error: () => {
-        this.data = [];
-        this.totalElements = 0;
-        this.loading = false;
-      }
-    });
+          forkJoin({
+            clientes: clienteIds.length ? this.preencherClientes(clienteIds) : of(void 0),
+            veiculos: veiculoIds.length ? this.preencherVeiculos(veiculoIds) : of(void 0),
+          }).subscribe({ error: () => { } });
+        },
+        error: () => {
+          this.data = [];
+          this.totalElements = 0;
+        },
+      });
   }
 
-  // ====== carregar tudo (para search mode) ======
+  /**
+   * Carrega “tudo” para viabilizar search mode.
+   * Observação: se o banco crescer muito, o ideal é migrar para busca server-side.
+   */
   private carregarTudo(): void {
     this.loading = true;
 
-    // pega tudo de uma vez (110/95 etc). Se teu banco crescer MUITO, depois a gente migra pra server-side search.
     const BIG = 5000;
 
-    this.osService.listar(0, BIG).subscribe({
-      next: (page: PageResponse<OrdemServico>) => {
-        const lista = (page.content ?? []).slice();
-        lista.sort((a, b) => this.compareOs(a, b));
-        this.allData = lista;
+    this.osService
+      .listar(0, BIG)
+      .pipe(finalize(() => (this.loading = false)))
+      .subscribe({
+        next: (page: PageResponse<OrdemServico>) => {
+          const lista = (page.content ?? []).slice();
+          lista.sort((a, b) => this.compareOs(a, b));
+          this.allData = lista;
 
-        const clienteIds = Array.from(new Set(lista.map(o => o.clienteId).filter(Boolean)));
-        const veiculoIds = Array.from(new Set(lista.map(o => o.veiculoId).filter(Boolean)));
+          const clienteIds = Array.from(new Set(lista.map((o) => o.clienteId).filter(Boolean)));
+          const veiculoIds = Array.from(new Set(lista.map((o) => o.veiculoId).filter(Boolean)));
 
-        forkJoin({
-          clientes: clienteIds.length ? this.preencherClientes(clienteIds) : of(void 0),
-          veiculos: veiculoIds.length ? this.preencherVeiculos(veiculoIds) : of(void 0),
-        }).subscribe({
-          next: () => { this.loading = false; },
-          error: () => { this.loading = false; }
-        });
-      },
-      error: () => {
-        this.allData = [];
-        this.loading = false;
-      }
-    });
+          forkJoin({
+            clientes: clienteIds.length ? this.preencherClientes(clienteIds) : of(void 0),
+            veiculos: veiculoIds.length ? this.preencherVeiculos(veiculoIds) : of(void 0),
+          }).subscribe({ error: () => { } });
+        },
+        error: () => {
+          this.allData = [];
+        },
+      });
   }
 
-  // ====== filtro (busca global) ======
+  /**
+   * Filtro global da tabela (search mode).
+   * Busca por: ids, cliente/veículo (via maps), status, descrição e data formatada.
+   */
   private filtrar(lista: OrdemServico[]): OrdemServico[] {
     const q = (this.search ?? '').trim().toLowerCase();
     if (!q) return lista;
@@ -226,9 +231,7 @@ export class OsListComponent implements OnInit {
       const status = String(os.status ?? '').toLowerCase();
       const descricao = String(os.descricao ?? '').toLowerCase();
 
-      const data = os.dataAbertura
-        ? new Date(os.dataAbertura).toLocaleDateString('pt-BR')
-        : '';
+      const data = os.dataAbertura ? new Date(os.dataAbertura).toLocaleDateString('pt-BR') : '';
       const dataLower = data.toLowerCase();
 
       return (
@@ -253,16 +256,22 @@ export class OsListComponent implements OnInit {
     return this.veiculoModeloById.get(veiculoId) ?? `#${veiculoId}`;
   }
 
-
   podeAvancar(os: OrdemServico): boolean {
     return os.status === 'ABERTA' || os.status === 'EM_ANDAMENTO';
   }
 
-  avancarStatus(os: OrdemServico) {
+  /**
+   * Atalho de fluxo: ABERTA -> EM_ANDAMENTO -> CONCLUIDA.
+   * A conclusão aqui é “simples” (não pede valor final); caso seu back exija,
+   * o ideal é abrir um dialog para capturar valorFinal antes de concluir.
+   */
+  avancarStatus(os: OrdemServico): void {
     const next =
-      os.status === 'ABERTA' ? 'EM_ANDAMENTO' :
-        os.status === 'EM_ANDAMENTO' ? 'CONCLUIDA' :
-          null;
+      os.status === 'ABERTA'
+        ? 'EM_ANDAMENTO'
+        : os.status === 'EM_ANDAMENTO'
+          ? 'CONCLUIDA'
+          : null;
 
     if (!next) return;
 
@@ -272,8 +281,7 @@ export class OsListComponent implements OnInit {
     });
   }
 
-
-  abrirCriar() {
+  abrirCriar(): void {
     const ref = this.dialog.open(OsFormDialogComponent, {
       width: '720px',
       data: { mode: 'create' },
@@ -282,16 +290,21 @@ export class OsListComponent implements OnInit {
     ref.afterClosed().subscribe((value) => {
       if (!value) return;
 
-      this.osService.criar({
-        clienteId: Number(value.clienteId),
-        veiculoId: Number(value.veiculoId),
-        descricao: String(value.descricao),
-        valorEstimado: value.valorEstimado ?? null,
-      }).subscribe({ next: () => this.refreshAfterWrite() });
+      this.osService
+        .criar({
+          clienteId: Number(value.clienteId),
+          veiculoId: Number(value.veiculoId),
+          descricao: String(value.descricao),
+          valorEstimado: value.valorEstimado ?? null,
+        })
+        .subscribe({
+          next: () => this.refreshAfterWrite(),
+          error: (e) => this.showError(e),
+        });
     });
   }
 
-  abrirEditar(os: OrdemServico) {
+  abrirEditar(os: OrdemServico): void {
     const ref = this.dialog.open(OsFormDialogComponent, {
       width: '720px',
       data: { mode: 'edit', initial: os },
@@ -300,33 +313,40 @@ export class OsListComponent implements OnInit {
     ref.afterClosed().subscribe((value) => {
       if (!value) return;
 
-      this.osService.atualizar(os.id, {
-        status: value.status,
-        descricao: String(value.descricao),
-        valor: value.valorFinal ?? null,
-      }).subscribe({ next: () => this.refreshAfterWrite() });
+      this.osService
+        .atualizar(os.id, {
+          status: value.status,
+          descricao: String(value.descricao),
+          valor: value.valorFinal ?? null,
+        })
+        .subscribe({
+          next: () => this.refreshAfterWrite(),
+          error: (e) => this.showError(e),
+        });
     });
   }
 
-  private refreshAfterWrite() {
-    // se estiver pesquisando, atualiza allData (pra refletir mudança)
+  private refreshAfterWrite(): void {
     if (this.isSearchMode) this.carregarTudo();
     else this.carregar();
   }
 
-  // ====== Ordenação default ======
+  /**
+   * Ordenação padrão:
+   * 1) prioridade por status (em andamento > aberta > concluída > cancelada)
+   * 2) data de abertura (asc)
+   * 3) id (asc)
+   */
   private compareOs(a: OrdemServico, b: OrdemServico): number {
     const pa = this.statusPriority(a.status);
     const pb = this.statusPriority(b.status);
 
     if (pa !== pb) return pa - pb;
 
-    // dentro da mesma prioridade: data de abertura asc
     const da = new Date(a.dataAbertura).getTime();
     const db = new Date(b.dataAbertura).getTime();
     if (da !== db) return da - db;
 
-    // empate: id asc
     return a.id - b.id;
   }
 
@@ -338,7 +358,12 @@ export class OsListComponent implements OnInit {
     return 9;
   }
 
-  // ====== preenchimento maps ======
+  /**
+   * Preenche map id -> nome do cliente para a página atual ou cache completo.
+   * Estratégia:
+   * - tenta preencher via listarTodos() (um "bulk")
+   * - se faltar algum id, busca individualmente
+   */
   private preencherClientes(ids: number[]) {
     const wanted = new Set(ids);
 
@@ -346,14 +371,13 @@ export class OsListComponent implements OnInit {
       map((lista: Cliente[]) => {
         this.clienteNomeById.clear();
 
-        for (const c of (lista ?? [])) {
+        for (const c of lista ?? []) {
           if (wanted.has(c.id)) {
             this.clienteNomeById.set(c.id, (c as any).nome ?? `#${c.id}`);
           }
         }
 
-        const faltando = ids.filter((id) => !this.clienteNomeById.has(id));
-        return faltando;
+        return ids.filter((id) => !this.clienteNomeById.has(id));
       }),
       catchError(() => of(ids)),
       switchMap((faltando: number[]) => {
@@ -377,6 +401,10 @@ export class OsListComponent implements OnInit {
     );
   }
 
+  /**
+   * Preenche map id -> modelo do veículo. Aqui não há fallback por id individual.
+   * O retorno do service pode ser array ou PageResponse, então o método é defensivo.
+   */
   private preencherVeiculos(ids: number[]) {
     const wanted = new Set(ids);
 
@@ -386,7 +414,7 @@ export class OsListComponent implements OnInit {
 
         this.veiculoModeloById.clear();
 
-        for (const v of (lista ?? [])) {
+        for (const v of lista ?? []) {
           if (wanted.has(v.id)) {
             this.veiculoModeloById.set(v.id, (v as any).modelo ?? `#${v.id}`);
           }
@@ -400,5 +428,4 @@ export class OsListComponent implements OnInit {
       })
     );
   }
-
 }

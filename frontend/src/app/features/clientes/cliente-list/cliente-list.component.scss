@@ -1,34 +1,15 @@
-// Responsive table column widths
-.col-nome {
-  width: 200px;
-  min-width: 150px;
-}
+.col-nome { width: 200px; min-width: 150px; }
+.col-email { width: 240px; min-width: 180px; }
+.col-telefone { width: 160px; min-width: 120px; }
+.col-acoes { width: 140px; text-align: center; }
 
-.col-email {
-  width: 240px;
-  min-width: 180px;
-}
-
-.col-telefone {
-  width: 160px;
-  min-width: 120px;
-}
-
-.col-acoes {
-  width: 140px;
-  text-align: center;
-}
-
-// Page layout
-.page {
-  padding: 24px;
-}
+.page { padding: 24px; }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   gap: 16px;
 
   h2 {
@@ -43,13 +24,24 @@
     font-size: 14px;
     color: #6b7280;
   }
-
-  button {
-    flex-shrink: 0;
-  }
 }
 
-// Tabs styling
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.header-filtros {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.campo-pesquisa { width: 260px; max-width: 100%; }
+.botao-criar { min-height: 40px; }
+
 .tabs-section {
   margin-top: 16px;
 
@@ -72,21 +64,6 @@
   }
 }
 
-// Toolbar for search
-.toolbar {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  padding: 16px 0 12px 0;
-  gap: 12px;
-}
-
-.search {
-  width: min(560px, 100%);
-  font-size: 14px;
-}
-
-// Table card wrapper
 .table-card {
   margin-bottom: 24px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
@@ -106,7 +83,6 @@
   }
 }
 
-// Base table styles
 .table-base {
   width: 100%;
   border-collapse: collapse;
@@ -128,40 +104,42 @@
     color: #1f2937;
   }
 
-  tr:hover {
-    background: #fafafa;
-  }
-
-  tr:last-child td {
-    border-bottom: none;
-  }
+  tr:hover { background: #fafafa; }
+  tr:last-child td { border-bottom: none; }
 }
 
-// Truncate text utility
-.truncate {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-// Action buttons
-::ng-deep {
-  .mat-mdc-icon-button {
-    --mdc-icon-button-state-layer-size: 40px;
+.no-data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 260px;
+  color: #9aa0a6;
 
-    &:hover {
-      background: rgba(14, 165, 233, 0.05);
-    }
+  mat-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 48px;
+    margin-bottom: 10px;
+    opacity: 0.5;
   }
+
+  p { margin: 0; font-size: 14px; }
 }
 
-// Error message
-.error-msg {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #991b1b;
-  padding: 12px 16px;
-  border-radius: 6px;
-  font-size: 14px;
-  margin-bottom: 16px;
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+@media (max-width: 768px) {
+  .header { flex-direction: column; align-items: stretch; }
+  .header-actions { justify-content: flex-end; flex-wrap: wrap; }
+  .campo-pesquisa { width: 100%; }
 }

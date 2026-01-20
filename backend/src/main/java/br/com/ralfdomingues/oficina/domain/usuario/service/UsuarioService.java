@@ -13,14 +13,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
 /**
  * Camada de serviço responsável pelas regras de negócio
  * relacionadas à entidade {@link Usuario}.
  *
- * <p>Centraliza operações de cadastro, atualização,
+ * <p>
+ * Centraliza operações de cadastro, atualização,
  * listagem e desativação lógica de usuários,
- * garantindo integridade e segurança dos dados.</p>
+ * garantindo integridade e segurança dos dados.
+ * </p>
  */
 @Service
 public class UsuarioService {
@@ -29,7 +30,7 @@ public class UsuarioService {
     private final PasswordEncoder passwordEncoder;
 
     public UsuarioService(UsuarioRepository repository,
-                          PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder) {
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -37,8 +38,10 @@ public class UsuarioService {
     /**
      * Cria um novo usuário no sistema.
      *
-     * <p>Aplica validação de unicidade de email e
-     * realiza a criptografia da senha antes da persistência.</p>
+     * <p>
+     * Aplica validação de unicidade de email e
+     * realiza a criptografia da senha antes da persistência.
+     * </p>
      *
      * @throws BusinessException caso o email já esteja cadastrado
      */
@@ -65,7 +68,7 @@ public class UsuarioService {
      * Lista apenas usuários ativos de forma paginada.
      */
     public Page<UsuarioResponseDTO> listar(Pageable pageable) {
-        return repository.findAllByAtivoTrue(pageable)
+        return repository.findAll(pageable)
                 .map(UsuarioResponseDTO::new);
     }
 
@@ -84,11 +87,13 @@ public class UsuarioService {
     /**
      * Atualiza parcialmente um usuário existente.
      *
-     * <p>Aplica validações de unicidade de email e
-     * recriptografa a senha quando informada.</p>
+     * <p>
+     * Aplica validações de unicidade de email e
+     * recriptografa a senha quando informada.
+     * </p>
      *
-     * @throws NotFoundException   caso o usuário não exista
-     * @throws BusinessException  caso o email já esteja em uso
+     * @throws NotFoundException caso o usuário não exista
+     * @throws BusinessException caso o email já esteja em uso
      */
     @Transactional
     public UsuarioResponseDTO atualizar(Long id, UsuarioUpdateDTO dto) {
@@ -128,8 +133,10 @@ public class UsuarioService {
     /**
      * Realiza a desativação lógica de um usuário.
      *
-     * <p>O registro permanece no banco de dados,
-     * sendo apenas marcado como inativo.</p>
+     * <p>
+     * O registro permanece no banco de dados,
+     * sendo apenas marcado como inativo.
+     * </p>
      *
      * @throws NotFoundException caso o usuário não exista
      */

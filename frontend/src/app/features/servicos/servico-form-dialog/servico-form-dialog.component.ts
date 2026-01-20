@@ -23,19 +23,20 @@ export type ServicoFormData = {
     MatDialogModule,
     MatButtonModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
   ],
   templateUrl: './servico-form-dialog.component.html',
-  styleUrl: './servico-form-dialog.component.scss'
+  styleUrl: './servico-form-dialog.component.scss',
 })
 export class ServicoFormDialogComponent {
-  private fb = inject(FormBuilder);
-  private dialogRef = inject(MatDialogRef<ServicoFormDialogComponent>);
-  data = inject<ServicoFormData>(MAT_DIALOG_DATA);
+  private readonly fb = inject(FormBuilder);
+  private readonly dialogRef = inject(MatDialogRef<ServicoFormDialogComponent>);
+  private readonly data = inject<ServicoFormData>(MAT_DIALOG_DATA);
 
+  /** Dialog genérico para criar/editar serviço. Retorna { nome, preco } ao salvar. */
   form = this.fb.group({
     nome: [this.data.initial?.nome ?? '', [Validators.required, Validators.minLength(2)]],
-    preco: [this.data.initial?.preco ?? 0, [Validators.required, Validators.min(0)]]
+    preco: [this.data.initial?.preco ?? 0, [Validators.required, Validators.min(0)]],
   });
 
   cancelar(): void {
@@ -47,6 +48,7 @@ export class ServicoFormDialogComponent {
       this.form.markAllAsTouched();
       return;
     }
+
     this.dialogRef.close(this.form.getRawValue());
   }
 }
