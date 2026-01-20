@@ -76,6 +76,13 @@ export const routes: Routes = [
             (m) => m.OsListComponent
           ),
       },
+      {
+        path: 'itens-servico',
+        loadComponent: () =>
+          import('./features/itens-servico/item-servico-list/item-servico-list.component').then(
+            (m) => m.ItemServicoListComponent
+          ),
+      },
     ],
   },
 

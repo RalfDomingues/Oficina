@@ -1,0 +1,47 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Editar usuário' : 'Novo usuário' }}</h2>
+
+<div mat-dialog-content class="content">
+    <form [formGroup]="form" class="form">
+        <mat-form-field appearance="outline" class="full">
+            <mat-label>Nome</mat-label>
+            <input matInput formControlName="nome" autocomplete="off" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full">
+            <mat-label>Email</mat-label>
+            <input matInput formControlName="email" autocomplete="off" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full">
+            <mat-label>Senha</mat-label>
+            <input matInput type="password" formControlName="senha" autocomplete="new-password" />
+            <mat-hint *ngIf="isEdit">Deixe em branco para manter a senha atual.</mat-hint>
+        </mat-form-field>
+
+        <div class="row">
+            <mat-form-field appearance="outline" class="field">
+                <mat-label>Perfil</mat-label>
+                <mat-select formControlName="perfil">
+                    <mat-option *ngFor="let perfil of perfis" [value]="perfil">
+                        {{ perfil }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="field" *ngIf="isEdit">
+                <mat-label>Status</mat-label>
+                <mat-select formControlName="ativo">
+                    <mat-option [value]="true">Ativo</mat-option>
+                    <mat-option [value]="false">Inativo</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+
+        <div class="actions">
+            <button mat-button type="button" (click)="cancelar()">Cancelar</button>
+            <button mat-flat-button color="primary" type="button" (click)="salvar()">
+                {{ isEdit ? 'Salvar' : 'Criar' }}
+            </button>
+        </div>
+    </form>
+</div>

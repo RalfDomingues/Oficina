@@ -57,27 +57,55 @@ mat-toolbar {
   flex: 1 1 auto;
 }
 
-/* USER BOX (topo direito) */
-.user-box {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  margin-right: 12px;
-}
-
-.user-pill {
-  padding: 6px 10px;
-  border-radius: 999px;
-  background: rgba(15, 23, 42, 0.06); /* contraste melhor no toolbar branco */
-  color: #0f172a;
-  font-size: 12px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
 /* CONTEÚDO */
 .content {
   padding: 24px;
   background: #f8fafc;
   min-height: calc(100vh - 56px);
+}
+
+/* USER SECTION (topo direito) */
+.user-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 12px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.user-name {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.user-role {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748b;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #f1f5f9;
+}
+
+/* LOGOUT BUTTON */
+.logout-btn {
+  color: #64748b !important;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #0f172a !important;
+  }
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
 }

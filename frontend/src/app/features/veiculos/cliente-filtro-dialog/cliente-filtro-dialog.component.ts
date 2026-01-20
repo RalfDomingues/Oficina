@@ -59,7 +59,7 @@ export class ClienteFiltroDialogComponent {
     });
   }
 
-  get hasValue(): boolean {
+  get temValor(): boolean {
     const v = this.query.value;
     if (v == null) return false;
     if (typeof v === 'string') return v.trim().length > 0;

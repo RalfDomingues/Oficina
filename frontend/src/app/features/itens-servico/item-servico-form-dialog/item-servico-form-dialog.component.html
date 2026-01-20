@@ -1,0 +1,44 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Editar item de serviço' : 'Novo item de serviço' }}</h2>
+
+<div mat-dialog-content class="content">
+    <form [formGroup]="form" class="form">
+        <div class="row">
+            <mat-form-field appearance="outline" class="field">
+                <mat-label>Ordem de serviço (ID)</mat-label>
+                <input matInput type="number" formControlName="ordemServicoId" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="field">
+                <mat-label>Serviço (ID)</mat-label>
+                <input matInput type="number" formControlName="servicoId" />
+            </mat-form-field>
+        </div>
+
+        <div class="row">
+            <mat-form-field appearance="outline" class="field">
+                <mat-label>Quantidade</mat-label>
+                <input matInput type="number" formControlName="quantidade" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="field" *ngIf="isEdit">
+                <mat-label>Valor unitário</mat-label>
+                <input matInput type="number" formControlName="valorUnitario" />
+            </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="field" *ngIf="isEdit">
+            <mat-label>Status</mat-label>
+            <mat-select formControlName="ativo">
+                <mat-option [value]="true">Ativo</mat-option>
+                <mat-option [value]="false">Inativo</mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        <div class="actions">
+            <button mat-button type="button" (click)="cancelar()">Cancelar</button>
+            <button mat-flat-button color="primary" type="button" (click)="salvar()">
+                {{ isEdit ? 'Salvar' : 'Criar' }}
+            </button>
+        </div>
+    </form>
+</div>

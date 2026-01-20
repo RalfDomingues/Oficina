@@ -1,3 +1,4 @@
+// veiculo-form-dialog.component.ts
 import { Component, Inject, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -6,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatOptionModule } from '@angular/material/core';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { HttpErrorResponse } from '@angular/common/http';
 
@@ -30,6 +32,7 @@ export type VeiculoFormDialogData =
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    MatOptionModule,
     MatSnackBarModule,
   ],
   templateUrl: './veiculo-form-dialog.component.html',
@@ -47,7 +50,7 @@ export class VeiculoFormDialogComponent implements OnInit {
   // Mercosul: ABC1D23 (regex simples)
   private readonly placaRegex = /^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$/;
 
-  // ✅ um único form (com ativo opcional)
+  // Form sem o campo ativo
   form = this.fb.group({
     placa: ['', [Validators.required, Validators.pattern(this.placaRegex)]],
     modelo: ['', [Validators.required]],
@@ -55,7 +58,6 @@ export class VeiculoFormDialogComponent implements OnInit {
     ano: [new Date().getFullYear(), [Validators.required, Validators.min(1900), Validators.max(2100)]],
     tipo: [null as TipoVeiculo | null, [Validators.required]],
     clienteId: [null as number | null, [Validators.required]],
-    ativo: [true],
   });
 
   constructor(
@@ -81,20 +83,21 @@ export class VeiculoFormDialogComponent implements OnInit {
         ano: v.ano,
         tipo: v.tipo,
         clienteId: v.clienteId,
-        ativo: (v as any).ativo ?? true,
       });
 
-      // se você não quer que altere placa e clienteId no edit:
+      // Desabilita placa e cliente no modo edição
       this.form.controls.placa.disable();
       this.form.controls.clienteId.disable();
     }
   }
 
-  carregarClientes() {
-    // teu ClienteService.listarTodos retorna Cliente[] (pelo que você mostrou)
+  carregarClientes(): void {
     this.clienteService.listarTodos().subscribe({
       next: (list: Cliente[]) => {
-        this.clientes = (list ?? []).filter((c: any) => c?.ativo !== false);
+        // Filtra apenas clientes ativos e ordena por nome
+        this.clientes = (list ?? [])
+          .filter((c: any) => c?.ativo !== false)
+          .sort((a, b) => (a.nome ?? '').localeCompare(b.nome ?? '', 'pt-BR'));
       },
       error: () => {
         this.clientes = [];
@@ -103,7 +106,7 @@ export class VeiculoFormDialogComponent implements OnInit {
     });
   }
 
-  salvar() {
+  salvar(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.snack.open('Verifique os campos do formulário.', 'Fechar', { duration: 2500 });
@@ -122,8 +125,6 @@ export class VeiculoFormDialogComponent implements OnInit {
         ano: Number(raw.ano),
         tipo: raw.tipo as TipoVeiculo,
         clienteId: Number(raw.clienteId),
-        // ativo: se teu create aceitar
-        ...(raw.ativo != null ? ({ ativo: !!raw.ativo } as any) : {}),
       };
 
       this.veiculoService.criar(dto).subscribe({
@@ -141,7 +142,7 @@ export class VeiculoFormDialogComponent implements OnInit {
       return;
     }
 
-    // edit
+    // Edit
     const v = (this.data as any).veiculo as Veiculo;
     const raw = this.form.getRawValue();
 
@@ -150,8 +151,6 @@ export class VeiculoFormDialogComponent implements OnInit {
       marca: String(raw.marca ?? '').trim(),
       ano: Number(raw.ano),
       tipo: raw.tipo as TipoVeiculo,
-      // ativo: se teu update aceitar
-      ...(raw.ativo != null ? ({ ativo: !!raw.ativo } as any) : {}),
     };
 
     this.veiculoService.atualizar(v.id, dto).subscribe({
@@ -167,7 +166,7 @@ export class VeiculoFormDialogComponent implements OnInit {
     });
   }
 
-  cancelar() {
+  cancelar(): void {
     this.dialogRef.close(null);
   }
 }

@@ -1,9 +1,8 @@
 /* =========================
-   DESIGN TOKENS — MOTORFLOW
+   DESIGN TOKENS — OFICINA
 ========================= */
 
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
-
 
 :root {
   --font-size: 16px;
@@ -16,21 +15,40 @@
   --card: #ffffff;
   --card-foreground: #0f172a;
 
-  /* Primary (Azul MotorFlow) */
+  /* Primary (Azul) */
   --primary: #0ea5e9;
   --primary-foreground: #ffffff;
+  --primary-dark: #0284c7;
+  --primary-light: #38bdf8;
 
-  /* Secondary */
+  /* Secundária */
   --secondary: #e0f2fe;
   --secondary-foreground: #0c4a6e;
+
+  /* Status */
+  --success: #22c55e;
+  --success-bg: rgba(34, 197, 94, 0.14);
+  --warning: #f59e0b;
+  --warning-bg: rgba(245, 158, 11, 0.16);
+  --danger: #ef4444;
+  --danger-bg: rgba(239, 68, 68, 0.14);
+  --info: #0ea5e9;
+  --info-bg: rgba(14, 165, 233, 0.14);
 
   /* Muted */
   --muted: #f1f5f9;
   --muted-foreground: #64748b;
 
-  /* Borders & Radius */
+  /* Borders */
   --border: rgba(14, 165, 233, 0.15);
-  --radius: 10px;
+  --border-light: rgba(0, 0, 0, 0.06);
+  --radius: 12px;
+  --radius-lg: 14px;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 8px 18px rgba(15, 23, 42, 0.06);
+  --shadow-lg: 0 8px 24px rgba(15, 23, 42, 0.08);
 
   /* Sidebar */
   --sidebar-bg: #e0f2fe;
@@ -42,23 +60,16 @@
   --toolbar-text: #0f172a;
 }
 
-/* =========================
-   DARK MODE (futuro)
-========================= */
 .dark {
   --background: #0f172a;
   --foreground: #f8fafc;
-
   --card: #020617;
   --card-foreground: #f8fafc;
-
   --primary: #38bdf8;
   --primary-foreground: #020617;
-
   --sidebar-bg: #020617;
   --sidebar-text: #e5e7eb;
   --sidebar-hover: rgba(56, 189, 248, 0.15);
-
   --toolbar-bg: #020617;
   --toolbar-text: #f8fafc;
 }
@@ -80,4 +91,229 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+/* =========================
+   UTILITIES & MIXINS
+========================= */
+
+// Mixin: Flex Center
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Mixin: Flex Between
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+// Mixin: Card Style
+@mixin card-style {
+  background: var(--card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+// Mixin: Status Badge
+@mixin badge($bg, $color) {
+  background: $bg;
+  color: $color;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: inline-block;
+}
+
+// Mixin: Text Truncate
+@mixin truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* =========================
+   COMMON CLASSES
+========================= */
+
+.page {
+  width: 100%;
+  max-width: none;
+  padding: 20px;
+  margin: 0;
+}
+
+.page-header {
+  @include flex-between;
+  gap: 20px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+
+  h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--foreground);
+    letter-spacing: -0.02em;
+  }
+
+  .subtitle {
+    margin: 8px 0 0 0;
+    font-size: 14px;
+    color: var(--muted-foreground);
+  }
+
+  .actions {
+    @include flex-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+}
+
+.page-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 18px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.search-field {
+  max-width: 560px;
+  width: 100%;
+}
+
+.card {
+  @include card-style;
+  width: 100%;
+  overflow: hidden;
+}
+
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  &.loading {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+}
+
+table {
+  width: 100%;
+  min-width: 800px;
+  table-layout: fixed;
+  border-collapse: collapse;
+
+  th {
+    background: rgba(15, 23, 42, 0.02);
+    padding: 12px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted-foreground);
+    border-bottom: 2px solid var(--border-light);
+  }
+
+  td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--foreground);
+    vertical-align: middle;
+
+    &.truncate {
+      @include truncate;
+    }
+  }
+
+  tr:hover td {
+    background: var(--muted);
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+}
+
+/* Status Badges */
+.badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+
+  &--success {
+    @include badge(var(--success-bg), var(--success));
+  }
+
+  &--warning {
+    @include badge(var(--warning-bg), var(--warning));
+  }
+
+  &--danger {
+    @include badge(var(--danger-bg), var(--danger));
+  }
+
+  &--info {
+    @include badge(var(--info-bg), var(--info));
+  }
+}
+
+.state {
+  padding: 20px;
+  border-radius: var(--radius-lg);
+  background: var(--muted);
+  text-align: center;
+  color: var(--muted-foreground);
+
+  &.error {
+    background: var(--danger-bg);
+    color: var(--danger);
+  }
+
+  &.empty {
+    padding: 40px 20px;
+  }
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .page {
+    padding: 12px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+
+    .actions {
+      width: 100%;
+
+      button {
+        flex: 1;
+      }
+    }
+  }
+
+  table {
+    min-width: 100%;
+    font-size: 13px;
+
+    th,
+    td {
+      padding: 10px 8px;
+    }
+  }
 }

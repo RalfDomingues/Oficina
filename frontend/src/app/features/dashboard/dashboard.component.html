@@ -14,9 +14,9 @@
 
         <!-- Cards -->
         <div class="cards">
-            <div class="card" *ngFor="let c of cards">
-                <div class="card-label">{{ c.label }}</div>
-                <div class="card-value">{{ c.value }}</div>
+            <div class="card" *ngFor="let card of cards">
+                <div class="card-label">{{ card.label }}</div>
+                <div class="card-value">{{ card.value }}</div>
             </div>
         </div>
 
@@ -35,9 +35,9 @@
                         <div class="right">Qtd.</div>
                     </div>
 
-                    <div class="row" *ngFor="let s of servicosMaisUsados">
-                        <div class="strong">{{ s.nomeServico }}</div>
-                        <div class="right">{{ s.quantidade }}</div>
+                    <div class="row" *ngFor="let servico of servicosMaisUsados">
+                        <div class="strong">{{ servico.nomeServico }}</div>
+                        <div class="right">{{ servico.quantidade }}</div>
                     </div>
                 </div>
             </section>
@@ -56,9 +56,9 @@
                         <div class="right">Qtd.</div>
                     </div>
 
-                    <div class="row" *ngFor="let o of ordensPorMes">
-                        <div class="strong">{{ formatMes(o.mes) }}</div>
-                        <div class="right">{{ o.quantidade }}</div>
+                    <div class="row" *ngFor="let ordem of ordensPorMes">
+                        <div class="strong">{{ formatMes(ordem.mes) }}</div>
+                        <div class="right">{{ ordem.quantidade }}</div>
                     </div>
                 </div>
             </section>

@@ -82,7 +82,7 @@ public class ItemServicoController {
      * Este endpoint reforça a relação direta entre item de serviço
      * e ordem de serviço no domínio.
      *
-     * @param ordemId identificador da ordem de serviço
+     * @param ordemId  identificador da ordem de serviço
      * @param pageable parâmetros de paginação
      * @return itens de serviço da ordem
      */

@@ -7,6 +7,9 @@ import { MatListModule } from '@angular/material/list';
 import { MatButtonModule } from '@angular/material/button';
 
 import { AuthService, Perfil } from '../../../core/auth/auth.service';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
+
 
 type MenuItem = {
   label: string;
@@ -26,6 +29,8 @@ type MenuItem = {
     MatToolbarModule,
     MatListModule,
     MatButtonModule,
+    MatIconModule,      // ← Adicionar
+    MatTooltipModule,   // ← Adicionar
   ],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.scss',
@@ -49,6 +54,7 @@ export class LayoutComponent {
     { label: 'Veículos', route: '/veiculos', roles: ['ADMIN', 'SECRETARIA'] },
 
     { label: 'Serviços', route: '/servicos', roles: ['ADMIN', 'SECRETARIA', 'MECANICO'] },
+    { label: 'Itens de Serviço', route: '/itens-servico', roles: ['ADMIN', 'SECRETARIA', 'MECANICO'] },
 
     { label: 'Usuários', route: '/usuarios', roles: ['ADMIN'] },
   ];

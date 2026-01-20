@@ -1,79 +1,32 @@
-.page {
-    padding: 16px;
-}
-
-.header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    flex-wrap: wrap;
-}
-
-.actions {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.search {
-    width: 360px;
-    max-width: 100%;
-}
-
-.table-wrap {
-    margin-top: 12px;
-}
-
-/* ✅ IMPORTANT: NÃO mexer em "table" genérico.
-   Estiliza só a tabela do Angular Material */
-table.mat-mdc-table {
-    width: 100%;
-    background: var(--card);
-    border-radius: 10px;
-    overflow: hidden;
-    /* faz o radius funcionar */
-}
-
-/* dá cara de tabela (padding consistente) */
-.mat-mdc-header-cell,
-.mat-mdc-cell {
-    padding: 12px 16px !important;
-    vertical-align: middle;
-}
-
-/* evita quebrar linhas e desalinhar */
-.mat-mdc-header-cell {
-    font-weight: 600;
-    white-space: nowrap;
-}
-
-.mat-mdc-cell {
-    white-space: nowrap;
-}
-
-/* cabeçalho levemente destacado */
-.mat-mdc-header-row {
-    background: var(--muted);
-}
-
-/* zebra opcional pra leitura */
-.mat-mdc-row:nth-child(even) {
-    background: rgba(0, 0, 0, 0.02);
-}
-
-/* coluna de ações com largura fixa e alinhada */
-.mat-column-acoes {
+// Coluna widths
+.col-placa {
     width: 120px;
 }
 
-.acoes {
-    display: flex;
-    gap: 6px;
-    justify-content: flex-end;
+.col-modelo {
+    width: 160px;
 }
 
-.loading {
-    padding: 24px;
+.col-marca {
+    width: 140px;
+}
+
+.col-ano {
+    width: 90px;
+}
+
+.col-tipo {
+    width: 110px;
+}
+
+.col-cliente {
+    width: 160px;
+}
+
+.col-status {
+    width: 100px;
+}
+
+.col-acoes {
+    width: 140px;
 }

@@ -10,8 +10,7 @@ import java.util.List;
  * Repositório responsável pelo acesso aos dados de {@link Servico}.
  *
  * <p>
- * Fornece consultas utilizadas para listar apenas serviços ativos,
- * evitando a exposição de registros desativados nas operações da aplicação.
+ * Fornece consultas utilizadas para listar serviços, com opção de:
  * </p>
  */
 public interface ServicoRepository extends JpaRepository<Servico, Long> {
@@ -37,5 +36,18 @@ public interface ServicoRepository extends JpaRepository<Servico, Long> {
      * @return página de serviços ativos
      */
     Page<Servico> findAllByAtivoTrue(Pageable pageable);
+
+    /**
+     * Retorna TODOS os serviços (ativos e inativos) de forma paginada.
+     *
+     * <p>
+     * Herdado de {@link JpaRepository}.
+     * Utilizado para listar serviços incluindo inativos.
+     *
+     * @param pageable parâmetros de paginação
+     * @return página de todos os serviços
+     */
+    @Override
+    Page<Servico> findAll(Pageable pageable);
 
 }

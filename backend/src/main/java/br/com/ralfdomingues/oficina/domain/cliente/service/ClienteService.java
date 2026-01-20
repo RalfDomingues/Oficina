@@ -127,7 +127,7 @@ public class ClienteService {
      */
     @Transactional(readOnly = true)
     public Page<ClienteResponseDTO> listar(Pageable pageable) {
-        return repository.findAllByAtivoTrue(pageable)
+        return repository.findAll(pageable)
                 .map(ClienteResponseDTO::new);
     }
 

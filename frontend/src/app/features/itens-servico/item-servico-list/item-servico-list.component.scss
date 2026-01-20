@@ -1,0 +1,166 @@
+// Coluna widths
+.col-servico {
+    width: 250px;
+    min-width: 200px;
+}
+
+.col-ordem {
+    width: 100px;
+    min-width: 80px;
+}
+
+.col-quantidade {
+    width: 90px;
+    min-width: 70px;
+    text-align: center;
+}
+
+.col-valor {
+    width: 140px;
+    min-width: 120px;
+    text-align: right;
+}
+
+.col-acoes {
+    width: 120px;
+    min-width: 100px;
+    text-align: center;
+}
+
+// Truncate text
+.truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+// Table styling
+.table-base {
+    width: 100%;
+
+    th {
+        font-weight: 600;
+        background-color: #f5f5f5;
+        border-bottom: 2px solid #e0e0e0;
+    }
+
+    td {
+        padding: 12px 8px;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    tr:hover {
+        background-color: #fafafa;
+    }
+}
+
+// Page layout
+.page {
+    padding: 20px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+
+    h2 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 600;
+    }
+
+    .sub {
+        margin: 4px 0 0 0;
+        color: #666;
+        font-size: 14px;
+    }
+}
+
+// Toolbar
+.toolbar {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 12px;
+
+    .search {
+        width: 300px;
+        max-width: 100%;
+    }
+}
+
+// Tabs
+.tabs-section {
+    ::ng-deep .mat-mdc-tab-labels {
+        margin-bottom: 0;
+    }
+
+    ::ng-deep .mdc-tab {
+        min-width: 160px;
+    }
+}
+
+// Table card
+.table-card {
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+// Table wrap
+.table-wrap {
+    position: relative;
+    overflow-x: auto;
+    min-height: 300px;
+
+    &.loading {
+        opacity: 0.6;
+        pointer-events: none;
+    }
+}
+
+// No data
+.no-data {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    color: #999;
+
+    mat-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        margin-bottom: 12px;
+        opacity: 0.5;
+    }
+
+    p {
+        margin: 0;
+        font-size: 16px;
+    }
+}
+
+// Spinner
+.spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+// Responsive
+@media (max-width: 768px) {
+    .col-servico {
+        width: 150px;
+    }
+
+    .col-valor {
+        width: 100px;
+    }
+
+    .toolbar .search {
+        width: 100%;
+    }
+}

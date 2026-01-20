@@ -1,65 +1,109 @@
 <div class="page">
-    <div class="page-header">
-        <div>
-            <h1 class="title">Clientes</h1>
-            <p class="subtitle">Gerencie cadastros e visualize informações rapidamente.</p>
-        </div>
-
-        <div class="header-actions">
-            <div class="search">
-                <input class="search-input" type="text" placeholder="Buscar por nome, email ou telefone..."
-                    [(ngModel)]="search" (input)="applyFilter()" />
-            </div>
-
-            <button class="btn primary" *ngIf="canWrite" (click)="abrirNovo()" type="button">
-                Novo cliente
-            </button>
-        </div>
+  <div class="header">
+    <div>
+      <h2>Clientes</h2>
+      <p class="sub">Gerencie cadastros e visualize informações rapidamente.</p>
     </div>
+    <button mat-raised-button color="primary" (click)="abrirNovo()" *ngIf="canWrite">
+      <mat-icon>add</mat-icon>
+      Novo cliente
+    </button>
+  </div>
 
-    <div *ngIf="loading" class="state">Carregando...</div>
-    <div *ngIf="!loading && errorMsg" class="state error">{{ errorMsg }}</div>
+  <!-- TABS -->
+  <mat-tab-group [(selectedIndex)]="abaSelecionada" class="tabs-section">
 
-    <div class="panel" *ngIf="!loading && !errorMsg">
-        <div class="table-wrap">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Nome</th>
-                        <th>Email</th>
-                        <th>Telefone</th>
-                        <th class="right">Ações</th>
-                    </tr>
-                </thead>
+    <!-- ABA 1: ATIVOS -->
+    <mat-tab label="Ativos ({{ clientesAtivos.length }})">
+      <div class="toolbar">
+        <mat-form-field appearance="outline" class="search">
+          <mat-label>Pesquisar</mat-label>
+          <mat-icon matPrefix>search</mat-icon>
+          <input matInput [(ngModel)]="search" (ngModelChange)="applyFilter()" placeholder="Nome, email, telefone..." />
+          <button *ngIf="search" mat-icon-button matSuffix (click)="search=''; applyFilter()" aria-label="Limpar">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+      </div>
 
-                <tbody>
-                    <tr *ngFor="let c of filtered">
-                        <td class="strong">{{ c.nome }}</td>
-                        <td>{{ c.email || '-' }}</td>
-                        <td>{{ formatTelefone(c.telefone) }}</td>
+      <mat-card class="table-card">
+        <div class="table-wrap" [class.loading]="loading">
+          <table mat-table [dataSource]="clientesAtivos" class="table-base">
+            <ng-container matColumnDef="nome">
+              <th mat-header-cell *matHeaderCellDef>Nome</th>
+              <td mat-cell *matCellDef="let row" class="col-nome truncate">{{ row.nome }}</td>
+            </ng-container>
 
-                        <td class="right actions">
-                            <button class="icon-btn" type="button" (click)="verDetalhes(c)">
-                                Ver
-                            </button>
+            <ng-container matColumnDef="email">
+              <th mat-header-cell *matHeaderCellDef>Email</th>
+              <td mat-cell *matCellDef="let row" class="col-email truncate">{{ row.email || '-' }}</td>
+            </ng-container>
 
-                            <button class="icon-btn" type="button" *ngIf="canWrite" (click)="editar(c)">
-                                Editar
-                            </button>
+            <ng-container matColumnDef="telefone">
+              <th mat-header-cell *matHeaderCellDef>Telefone</th>
+              <td mat-cell *matCellDef="let row" class="col-telefone">{{ row.telefone || '-' }}</td>
+            </ng-container>
 
-                            <button class="icon-btn danger" type="button" *ngIf="canWrite" (click)="excluir(c)">
-                                Excluir
-                            </button>
-                        </td>
-                    </tr>
+            <ng-container matColumnDef="acoes">
+              <th mat-header-cell *matHeaderCellDef>Ações</th>
+              <td mat-cell *matCellDef="let row" class="col-acoes">
+                <button mat-icon-button (click)="verDetalhes(row)" aria-label="Ver">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                <button mat-icon-button *ngIf="canWrite" (click)="editar(row)" aria-label="Editar">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button *ngIf="canWrite" (click)="excluir(row)" aria-label="Excluir">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+            </ng-container>
 
-                    <tr *ngIf="filtered.length === 0">
-                        <td colspan="4" class="empty">
-                            Nenhum cliente encontrado.
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <tr mat-header-row *matHeaderRowDef="['nome', 'email', 'telefone', 'acoes']"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['nome', 'email', 'telefone', 'acoes']"></tr>
+          </table>
         </div>
-    </div>
+      </mat-card>
+    </mat-tab>
+
+    <!-- ABA 2: INATIVOS -->
+    <mat-tab label="Inativos ({{ clientesInativos.length }})">
+      <mat-card class="table-card">
+        <div class="table-wrap" [class.loading]="loading">
+          <table mat-table [dataSource]="clientesInativos" class="table-base">
+            <ng-container matColumnDef="nome">
+              <th mat-header-cell *matHeaderCellDef>Nome</th>
+              <td mat-cell *matCellDef="let row" class="col-nome truncate">{{ row.nome }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="email">
+              <th mat-header-cell *matHeaderCellDef>Email</th>
+              <td mat-cell *matCellDef="let row" class="col-email truncate">{{ row.email || '-' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="telefone">
+              <th mat-header-cell *matHeaderCellDef>Telefone</th>
+              <td mat-cell *matCellDef="let row" class="col-telefone">{{ row.telefone || '-' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="acoes">
+              <th mat-header-cell *matHeaderCellDef>Ações</th>
+              <td mat-cell *matCellDef="let row" class="col-acoes">
+                <button mat-icon-button (click)="verDetalhes(row)" aria-label="Ver">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                <button mat-icon-button *ngIf="canWrite" (click)="reativar(row)" aria-label="Reativar">
+                  <mat-icon>restore</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="['nome', 'email', 'telefone', 'acoes']"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['nome', 'email', 'telefone', 'acoes']"></tr>
+          </table>
+        </div>
+      </mat-card>
+    </mat-tab>
+
+  </mat-tab-group>
 </div>

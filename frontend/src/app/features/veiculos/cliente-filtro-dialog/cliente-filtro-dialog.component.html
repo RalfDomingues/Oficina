@@ -4,32 +4,17 @@
   <mat-form-field appearance="outline" class="full-width">
     <mat-label>Cliente (nome ou ID)</mat-label>
 
-    <input
-      matInput
-      [formControl]="query"
-      [matAutocomplete]="auto"
-      placeholder="Ex: João / Maria / 12"
-    />
+    <input matInput [formControl]="query" [matAutocomplete]="auto" placeholder="Ex: João / Maria / 12" />
 
-    <button
-      mat-icon-button
-      matSuffix
-      type="button"
-      aria-label="Limpar"
-      *ngIf="hasValue"
-      (click)="limpar()"
-    >
+    <button mat-icon-button matSuffix type="button" aria-label="Limpar" *ngIf="temValor" (click)="limpar()">
       <mat-icon>close</mat-icon>
     </button>
 
-    <mat-autocomplete
-      #auto="matAutocomplete"
-      [displayWith]="displayWith"
-      (optionSelected)="selecionar($event.option.value)"
-    >
-      <mat-option *ngFor="let c of (filtered$ | async)" [value]="c">
-        {{ c.nome }}
-        <span class="muted">(#{{ c.id }})</span>
+    <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayWith"
+      (optionSelected)="selecionar($event.option.value)">
+      <mat-option *ngFor="let cliente of (filtered$ | async)" [value]="cliente">
+        {{ cliente.nome }}
+        <span class="muted">(#{{ cliente.id }})</span>
       </mat-option>
     </mat-autocomplete>
   </mat-form-field>

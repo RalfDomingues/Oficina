@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { Servico } from '../../../shared/models/servico.model';
 import { PageResponse } from '../../../shared/models/page.model';
 import { environment } from '../../../../environments/environment';
@@ -23,15 +23,13 @@ export class ServicoService {
   constructor(private http: HttpClient) { }
 
   listar(page = 0, size = 10): Observable<PageResponse<Servico>> {
-  const params = new HttpParams()
-    .set('page', String(page))
-    .set('size', String(size))
-    .set('sort', 'nome,asc');
+    const params = new HttpParams()
+      .set('page', String(page))
+      .set('size', String(size))
+      .set('sort', 'nome,asc');
 
-  return this.http.get<PageResponse<Servico>>(this.baseUrl, { params });
-}
-
-
+    return this.http.get<PageResponse<Servico>>(this.baseUrl, { params });
+  }
 
   criar(dto: ServicoCreateDTO): Observable<Servico> {
     return this.http.post<Servico>(this.baseUrl, dto);
@@ -43,5 +41,10 @@ export class ServicoService {
 
   deletar(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
+
+  // Busca TODOS os serviços (ativos + inativos) sem paginação
+  listarTodos(size = 5000): Observable<Servico[]> {
+    return this.listar(0, size).pipe(map((p) => p.content ?? []));
   }
 }

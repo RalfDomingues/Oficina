@@ -2,8 +2,18 @@
 
 <div mat-dialog-content class="content">
     <div class="row">
+        <div class="label">ID</div>
+        <div class="value">#{{ cliente.id || '-' }}</div>
+    </div>
+
+    <div class="row">
         <div class="label">Nome</div>
         <div class="value">{{ cliente.nome || '-' }}</div>
+    </div>
+
+    <div class="row">
+        <div class="label">CPF</div>
+        <div class="value">{{ cpfFormatado }}</div>
     </div>
 
     <div class="row">
@@ -14,12 +24,11 @@
     <div class="row">
         <div class="label">Telefone</div>
         <div class="value">{{ telefoneFormatado }}</div>
-
     </div>
 
     <div class="row">
-        <div class="label">ID</div>
-        <div class="value">{{ cliente.id || '-' }}</div>
+        <div class="label">Status</div>
+        <div class="value">{{ cliente.ativo ? 'Ativo' : 'Inativo' }}</div>
     </div>
 
     <div class="actions">

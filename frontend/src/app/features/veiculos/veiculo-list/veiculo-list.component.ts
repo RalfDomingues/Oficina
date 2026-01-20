@@ -1,4 +1,5 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+// veiculo-list.component.ts (COMPLETO)
+import { Component, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -11,6 +12,8 @@ import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/p
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatCardModule } from '@angular/material/card';
 
 import { forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
@@ -19,12 +22,7 @@ import { Veiculo } from '../../../shared/models/veiculo.model';
 import { VeiculoService } from '../data/veiculo.service';
 import { VeiculoFormDialogComponent } from '../veiculo-form-dialog/veiculo-form-dialog.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
-
-// ✅ IMPORTA o dialog novo:
 import { ClienteFiltroDialogComponent } from '../cliente-filtro-dialog/cliente-filtro-dialog.component';
-
-
-// ✅ IMPORTA teu service de cliente (ajusta o path se precisar)
 import { ClienteService } from '../../clientes/data/cliente.service';
 
 type VeiculoView = Veiculo & { clienteNome?: string | null };
@@ -43,78 +41,63 @@ type VeiculoView = Veiculo & { clienteNome?: string | null };
     MatSnackBarModule,
     MatFormFieldModule,
     MatInputModule,
+    MatTabsModule,
+    MatCardModule,
   ],
   templateUrl: './veiculo-list.component.html',
   styleUrl: './veiculo-list.component.scss',
 })
 export class VeiculoListComponent implements OnInit {
-  displayedColumns = ['placa', 'modelo', 'marca', 'ano', 'tipo', 'clienteNome', 'ativo', 'acoes'];
+  private veiculoService = inject(VeiculoService);
+  private clienteService = inject(ClienteService);
+  private dialog = inject(MatDialog);
+  private snack = inject(MatSnackBar);
 
-  dataSource = new MatTableDataSource<VeiculoView>([]);
-  totalElements = 0;
+  displayedColumns = ['placa', 'modelo', 'marca', 'ano', 'tipo', 'clienteNome', 'acoes'];
 
-  pageIndex = 0;
-  pageSize = 10;
+  veiculosAtivos = new MatTableDataSource<VeiculoView>([]);
+  veiculosInativos = new MatTableDataSource<VeiculoView>([]);
+  abaSelecionada = 0;
+
+  totalAtivos = 0;
+  totalInativos = 0;
+
   loading = false;
-
-  // filtro (na página atual)
   search = '';
 
-  // guarda a página "crua" vinda do backend (para não filtrar em cima do filtrado)
-  pageRaw: VeiculoView[] = [];
+  // dados brutos antes de filtrar
+  todosAtivos: VeiculoView[] = [];
+  todosInativos: VeiculoView[] = [];
 
-  // modo de listagem
   clienteIdFiltro: number | null = null;
-
-  // cache pra evitar buscar o mesmo cliente sempre
   private clienteNomeCache = new Map<number, string>();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
-
-  constructor(
-    private veiculoService: VeiculoService,
-    private clienteService: ClienteService,
-    private dialog: MatDialog,
-    private snack: MatSnackBar
-  ) { }
 
   ngOnInit(): void {
     this.carregar();
   }
 
-  onPage(ev: PageEvent) {
-    this.pageIndex = ev.pageIndex;
-    this.pageSize = ev.pageSize;
-    this.carregar();
-  }
-
-  carregar() {
+  carregar(): void {
     this.loading = true;
 
-    const obs =
-      this.clienteIdFiltro != null
-        ? this.veiculoService.listarPorClientePaginado(this.clienteIdFiltro, this.pageIndex, this.pageSize)
-        : this.veiculoService.listarPaginado(this.pageIndex, this.pageSize);
+    const obs = this.clienteIdFiltro != null
+      ? this.veiculoService.listarTodosPorCliente(this.clienteIdFiltro)
+      : this.veiculoService.listarTodos();
 
     obs.subscribe({
-      next: (page) => {
-        const raw: VeiculoView[] = (page.content ?? []) as VeiculoView[];
+      next: (list: Veiculo[]) => {
+        const raw = (list ?? []) as VeiculoView[];
 
         this.preencherClienteNome(raw).subscribe({
           next: (enriquecidos) => {
-            this.pageRaw = enriquecidos;
-            this.dataSource.data = this.aplicarFiltroNaPagina(this.pageRaw);
-
-            // mantém o total do servidor (mesmo filtrando só a página atual)
-            this.totalElements = page.totalElements ?? this.pageRaw.length;
-
+            this.separaEOrdena(enriquecidos);
+            this.aplicarFiltro();
             this.loading = false;
           },
           error: () => {
-            // se der ruim ao buscar nomes, ainda mostra a lista sem nome
-            this.pageRaw = raw;
-            this.dataSource.data = this.aplicarFiltroNaPagina(this.pageRaw);
-            this.totalElements = page.totalElements ?? this.pageRaw.length;
+            this.separaEOrdena(raw);
+            this.aplicarFiltro();
             this.loading = false;
           },
         });
@@ -137,7 +120,6 @@ export class VeiculoListComponent implements OnInit {
 
     const missing = ids.filter((id) => !this.clienteNomeCache.has(id));
 
-    // nada pra buscar
     if (missing.length === 0) {
       return of(
         (list ?? []).map((v) => ({
@@ -147,9 +129,7 @@ export class VeiculoListComponent implements OnInit {
       );
     }
 
-    // busca os clientes que faltam
     const reqs = missing.map((id) =>
-      // ⚠️ AJUSTE o nome do método se o teu ClienteService for diferente
       this.clienteService.buscarPorId(id).pipe(
         map((c: any) => ({ id, nome: (c?.nome ?? '').trim() })),
         catchError(() => of({ id, nome: '' }))
@@ -170,64 +150,93 @@ export class VeiculoListComponent implements OnInit {
     );
   }
 
-  aplicarFiltroNaPagina(list: VeiculoView[]): VeiculoView[] {
-    const q = (this.search ?? '').trim().toLowerCase();
-    if (!q) return list ?? [];
+  private separaEOrdena(list: VeiculoView[]): void {
+    const ativos = list.filter(v => v.ativo);
+    const inativos = list.filter(v => !v.ativo);
 
-    return (list ?? []).filter((v) => {
-      const placa = (v.placa ?? '').toLowerCase();
-      const modelo = (v.modelo ?? '').toLowerCase();
-      const marca = (v.marca ?? '').toLowerCase();
-      const tipo = String(v.tipo ?? '').toLowerCase();
+    this.todosAtivos = this.ordenarVeiculos(ativos);
+    this.todosInativos = this.ordenarVeiculos(inativos);
 
-      const clienteId = String(v.clienteId ?? '');
-      const clienteNome = (v.clienteNome ?? '').toLowerCase();
+    this.totalAtivos = this.todosAtivos.length;
+    this.totalInativos = this.todosInativos.length;
+  }
 
-      return (
-        placa.includes(q) ||
-        modelo.includes(q) ||
-        marca.includes(q) ||
-        tipo.includes(q) ||
-        clienteId.includes(q) ||
-        clienteNome.includes(q)
-      );
+  private ordenarVeiculos(list: VeiculoView[]): VeiculoView[] {
+    return [...(list ?? [])].sort((a, b) => {
+      const nomeA = (a.clienteNome ?? '').toLowerCase();
+      const nomeB = (b.clienteNome ?? '').toLowerCase();
+
+      // Primeiro ordena por nome do cliente
+      const compareCliente = nomeA.localeCompare(nomeB, 'pt-BR', { sensitivity: 'base' });
+      if (compareCliente !== 0) return compareCliente;
+
+      // Se mesmo cliente, ordena por modelo
+      const modeloA = (a.modelo ?? '').toLowerCase();
+      const modeloB = (b.modelo ?? '').toLowerCase();
+      return modeloA.localeCompare(modeloB, 'pt-BR', { sensitivity: 'base' });
     });
   }
 
-  onSearchChange() {
-    this.dataSource.data = this.aplicarFiltroNaPagina(this.pageRaw);
-  }
+  aplicarFiltro(): void {
+    const q = (this.search ?? '').trim().toLowerCase();
 
-  limparFiltroCliente() {
-    this.clienteIdFiltro = null;
-    this.pageIndex = 0;
-    this.carregar();
-  }
-
-  // ✅ substitui o prompt por dialog
-  filtrarPorClientePrompt() {
-  const ref = this.dialog.open(ClienteFiltroDialogComponent, {
-    width: '520px',
-    data: { initialId: this.clienteIdFiltro },
-  });
-
-  ref.afterClosed().subscribe((result: { clienteId: number } | null) => {
-    if (!result) return;
-
-    const id = Number(result.clienteId);
-    if (!Number.isFinite(id) || id <= 0) {
-      this.snack.open('Cliente inválido.', 'Fechar', { duration: 2500 });
+    if (!q) {
+      this.veiculosAtivos.data = [...this.todosAtivos];
+      this.veiculosInativos.data = [...this.todosInativos];
       return;
     }
 
-    this.clienteIdFiltro = id;
-    this.pageIndex = 0;
+    const filtrados = (list: VeiculoView[]) =>
+      (list ?? []).filter((v) => {
+        const placa = (v.placa ?? '').toLowerCase();
+        const modelo = (v.modelo ?? '').toLowerCase();
+        const marca = (v.marca ?? '').toLowerCase();
+        const tipo = String(v.tipo ?? '').toLowerCase();
+        const clienteNome = (v.clienteNome ?? '').toLowerCase();
+
+        return (
+          placa.includes(q) ||
+          modelo.includes(q) ||
+          marca.includes(q) ||
+          tipo.includes(q) ||
+          clienteNome.includes(q)
+        );
+      });
+
+    this.veiculosAtivos.data = this.ordenarVeiculos(filtrados(this.todosAtivos));
+    this.veiculosInativos.data = this.ordenarVeiculos(filtrados(this.todosInativos));
+  }
+
+  onSearchChange(): void {
+    this.aplicarFiltro();
+  }
+
+  filtrarPorClientePrompt(): void {
+    const ref = this.dialog.open(ClienteFiltroDialogComponent, {
+      width: '520px',
+      data: { initialId: this.clienteIdFiltro },
+    });
+
+    ref.afterClosed().subscribe((result: { clienteId: number } | null) => {
+      if (!result) return;
+
+      const id = Number(result.clienteId);
+      if (!Number.isFinite(id) || id <= 0) {
+        this.snack.open('Cliente inválido.', 'Fechar', { duration: 2500 });
+        return;
+      }
+
+      this.clienteIdFiltro = id;
+      this.carregar();
+    });
+  }
+
+  limparFiltroCliente(): void {
+    this.clienteIdFiltro = null;
     this.carregar();
-  });
-}
+  }
 
-
-  abrirCriar() {
+  abrirCriar(): void {
     const ref = this.dialog.open(VeiculoFormDialogComponent, {
       width: '560px',
       data: { mode: 'create' },
@@ -236,12 +245,11 @@ export class VeiculoListComponent implements OnInit {
     ref.afterClosed().subscribe((created: Veiculo | null) => {
       if (!created) return;
       this.snack.open('Veículo criado com sucesso', 'Fechar', { duration: 2500 });
-      this.pageIndex = 0;
       this.carregar();
     });
   }
 
-  abrirEditar(v: Veiculo) {
+  abrirEditar(v: Veiculo): void {
     const ref = this.dialog.open(VeiculoFormDialogComponent, {
       width: '560px',
       data: { mode: 'edit', veiculo: v },
@@ -254,7 +262,36 @@ export class VeiculoListComponent implements OnInit {
     });
   }
 
-  confirmarDelete(v: Veiculo) {
+  reativar(v: Veiculo): void {
+    if (!v.id) return;
+
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      width: '420px',
+      data: {
+        title: 'Reativar veículo',
+        message: `Tem certeza que deseja reativar o veículo "${v.placa}"?`,
+        confirmText: 'Reativar',
+        cancelText: 'Cancelar',
+      },
+    });
+
+    ref.afterClosed().subscribe((confirm: boolean) => {
+      if (!confirm) return;
+
+      this.veiculoService.atualizar(v.id, { ativo: true }).subscribe({
+        next: () => {
+          this.snack.open('Veículo reativado com sucesso', 'Fechar', { duration: 2500 });
+          this.carregar();
+        },
+        error: (err: HttpErrorResponse) => {
+          const msg = (err.error as any)?.message ?? 'Erro ao reativar veículo';
+          this.snack.open(msg, 'Fechar', { duration: 3500 });
+        },
+      });
+    });
+  }
+
+  confirmarDelete(v: Veiculo): void {
     const ref = this.dialog.open(ConfirmDialogComponent, {
       width: '420px',
       data: {
@@ -271,11 +308,6 @@ export class VeiculoListComponent implements OnInit {
       this.veiculoService.excluir(v.id).subscribe({
         next: () => {
           this.snack.open('Veículo removido (inativado)', 'Fechar', { duration: 2500 });
-
-          if (this.pageRaw.length <= 1 && this.pageIndex > 0) {
-            this.pageIndex--;
-          }
-
           this.carregar();
         },
         error: (err: HttpErrorResponse) => {

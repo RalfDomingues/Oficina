@@ -20,7 +20,6 @@ export class ClienteDetailsDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: ClienteDetailsDialogData
   ) { }
 
-  // Angular template fica mais feliz com getters simples
   get cliente(): Cliente {
     return this.data.cliente;
   }
@@ -31,6 +30,10 @@ export class ClienteDetailsDialogComponent {
 
   get telefone(): string {
     return ((this.data.cliente as any)?.telefone ?? '') as string;
+  }
+
+  get cpf(): string {
+    return ((this.data.cliente as any)?.cpf ?? '') as string;
   }
 
   close(): void {
@@ -45,4 +48,10 @@ export class ClienteDetailsDialogComponent {
     return digits;
   }
 
+  get cpfFormatado(): string {
+    const digits = String(this.cpf ?? '').replace(/\D/g, '');
+    if (!digits) return '-';
+    if (digits.length === 11) return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
+    return digits;
+  }
 }

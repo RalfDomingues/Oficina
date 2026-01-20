@@ -17,13 +17,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 
-
 /**
  * Serviço que gerencia operações de Item de Serviço.
  *
  * <p>
- * Permite criar, listar, buscar, atualizar e deletar itens de serviço, mantendo o cálculo
- * do valor total da ordem de serviço atualizado. Aplicam-se validações de negócio
+ * Permite criar, listar, buscar, atualizar e deletar itens de serviço, mantendo
+ * o cálculo
+ * do valor total da ordem de serviço atualizado. Aplicam-se validações de
+ * negócio
  * como não permitir atualização de itens inativos sem reativação.
  * </p>
  */
@@ -34,10 +35,9 @@ public class ItemServicoService {
     private final ServicoRepository servicoRepo;
     private final OrdemServicoRepository ordemRepo;
 
-
     public ItemServicoService(ItemServicoRepository itemRepo,
-                              ServicoRepository servicoRepo,
-                              OrdemServicoRepository ordemRepo) {
+            ServicoRepository servicoRepo,
+            OrdemServicoRepository ordemRepo) {
         this.itemRepo = itemRepo;
         this.servicoRepo = servicoRepo;
         this.ordemRepo = ordemRepo;
@@ -62,8 +62,7 @@ public class ItemServicoService {
                 ordem,
                 servico,
                 dto.quantidade(),
-                servico.getPreco()
-        );
+                servico.getPreco());
 
         itemRepo.save(item);
         recalcularTotal(ordem);
@@ -106,7 +105,7 @@ public class ItemServicoService {
      * Não é possível atualizar um item inativo sem reativá-lo.
      * </p>
      *
-     * @param id ID do item
+     * @param id  ID do item
      * @param dto dados de atualização
      * @return DTO do item atualizado
      */
@@ -142,7 +141,6 @@ public class ItemServicoService {
         recalcularTotal(item.getOrdem());
         return new ItemServicoResponseDTO(item);
     }
-
 
     /**
      * Remove logicamente um item de serviço e recalcula o total da ordem.

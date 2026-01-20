@@ -1,18 +1,37 @@
+<!-- servico-form-dialog.component.html -->
 <h2 mat-dialog-title>{{ data.title }}</h2>
 
-<div mat-dialog-content class="content">
-  <mat-form-field appearance="outline" class="field">
-    <mat-label>Nome</mat-label>
-    <input matInput formControlName="nome" [formControl]="form.controls.nome" />
-  </mat-form-field>
+<form [formGroup]="form" (ngSubmit)="salvar()">
+  <div mat-dialog-content class="form-center">
 
-  <mat-form-field appearance="outline" class="field">
-    <mat-label>Preço</mat-label>
-    <input matInput type="number" formControlName="preco" [formControl]="form.controls.preco" />
-  </mat-form-field>
-</div>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Nome</mat-label>
+      <input matInput formControlName="nome" />
+      <mat-error *ngIf="form.get('nome')?.hasError('required')">
+        Nome é obrigatório
+      </mat-error>
+      <mat-error *ngIf="form.get('nome')?.hasError('minlength')">
+        Nome deve ter no mínimo 2 caracteres
+      </mat-error>
+    </mat-form-field>
 
-<div mat-dialog-actions align="end">
-  <button mat-button (click)="cancelar()">Cancelar</button>
-  <button mat-raised-button color="primary" (click)="salvar()">Salvar</button>
-</div>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Preço (R$)</mat-label>
+      <input matInput type="number" formControlName="preco" step="0.01" min="0" />
+      <mat-error *ngIf="form.get('preco')?.hasError('required')">
+        Preço é obrigatório
+      </mat-error>
+      <mat-error *ngIf="form.get('preco')?.hasError('min')">
+        Preço deve ser maior que zero
+      </mat-error>
+    </mat-form-field>
+
+  </div>
+
+  <div mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="cancelar()">Cancelar</button>
+    <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">
+      Salvar
+    </button>
+  </div>
+</form>

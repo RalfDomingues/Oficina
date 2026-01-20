@@ -72,11 +72,11 @@ public class ServicoService {
     }
 
     /**
-     * Lista apenas serviços ativos de forma paginada.
+     * Lista TODOS os serviços (ativos e inativos) de forma paginada.
      */
     @Transactional(readOnly = true)
     public Page<ServicoResponseDTO> listar(Pageable pageable) {
-        return repository.findAllByAtivoTrue(pageable)
+        return repository.findAll(pageable)
                 .map(ServicoResponseDTO::new);
     }
 

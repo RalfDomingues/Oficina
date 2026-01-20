@@ -55,8 +55,13 @@ export class VeiculoService {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
 
-  // Se tu ainda precisar em algum lugar (select), dá pra manter:
+  // Busca TODOS os veículos (ativos + inativos) sem paginação
   listarTodos(size = 5000): Observable<Veiculo[]> {
     return this.listarPaginado(0, size).pipe(map((p) => p.content ?? []));
+  }
+
+  // Busca TODOS os veículos de um cliente específico (ativos + inativos) sem paginação
+  listarTodosPorCliente(clienteId: number, size = 5000): Observable<Veiculo[]> {
+    return this.listarPorClientePaginado(clienteId, 0, size).pipe(map((p) => p.content ?? []));
   }
 }

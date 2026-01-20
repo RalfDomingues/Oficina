@@ -1,12 +1,18 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatTableModule } from '@angular/material/table';
+import { FormsModule } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
+
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatTableDataSource } from '@angular/material/table';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatCardModule } from '@angular/material/card';
+
 import { Servico } from '../../../shared/models/servico.model';
 import { ServicoService } from '../data/servico.service';
 import { ServicoFormDialogComponent } from '../servico-form-dialog/servico-form-dialog.component';
@@ -17,52 +23,53 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     MatTableModule,
     MatButtonModule,
     MatIconModule,
     MatDialogModule,
-    MatPaginatorModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatTabsModule,
+    MatCardModule,
   ],
   templateUrl: './servico-list.component.html',
   styleUrl: './servico-list.component.scss'
 })
 export class ServicoListComponent implements OnInit {
-  displayedColumns = ['nome', 'preco', 'ativo', 'acoes'];
+  private servicoService = inject(ServicoService);
+  private dialog = inject(MatDialog);
+  private snack = inject(MatSnackBar);
 
-  dataSource = new MatTableDataSource<Servico>([]);
-  totalElements = 0;
+  displayedColumns = ['nome', 'preco', 'acoes'];
 
-  pageIndex = 0;
-  pageSize = 10;
+  servicosAtivos = new MatTableDataSource<Servico>([]);
+  servicosInativos = new MatTableDataSource<Servico>([]);
+  abaSelecionada = 0;
+
+  totalAtivos = 0;
+  totalInativos = 0;
 
   loading = false;
+  search = '';
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-
-  constructor(
-    private servicoService: ServicoService,
-    private dialog: MatDialog,
-    private snack: MatSnackBar
-  ) { }
+  // dados brutos antes de filtrar
+  todosAtivos: Servico[] = [];
+  todosInativos: Servico[] = [];
 
   ngOnInit(): void {
     this.carregar();
   }
 
-  onPage(ev: PageEvent) {
-    this.pageIndex = ev.pageIndex;
-    this.pageSize = ev.pageSize;
-    this.carregar();
-  }
-
-  carregar() {
+  carregar(): void {
     this.loading = true;
 
-    this.servicoService.listar(this.pageIndex, this.pageSize).subscribe({
-      next: (page) => {
-        this.dataSource.data = page.content;
-        this.totalElements = page.totalElements;
+    this.servicoService.listarTodos().subscribe({
+      next: (list) => {
+        const servicos = (list ?? []) as Servico[];
+        this.separaEOrdena(servicos);
+        this.aplicarFiltro();
         this.loading = false;
       },
       error: () => {
@@ -72,7 +79,49 @@ export class ServicoListComponent implements OnInit {
     });
   }
 
-  abrirCriar() {
+  private separaEOrdena(list: Servico[]): void {
+    const ativos = list.filter(s => s.ativo);
+    const inativos = list.filter(s => !s.ativo);
+
+    this.todosAtivos = this.ordenarServiços(ativos);
+    this.todosInativos = this.ordenarServiços(inativos);
+
+    this.totalAtivos = this.todosAtivos.length;
+    this.totalInativos = this.todosInativos.length;
+  }
+
+  private ordenarServiços(list: Servico[]): Servico[] {
+    return [...(list ?? [])].sort((a, b) => {
+      const nomeA = (a.nome ?? '').toLowerCase();
+      const nomeB = (b.nome ?? '').toLowerCase();
+      return nomeA.localeCompare(nomeB, 'pt-BR', { sensitivity: 'base' });
+    });
+  }
+
+  aplicarFiltro(): void {
+    const q = (this.search ?? '').trim().toLowerCase();
+
+    if (!q) {
+      this.servicosAtivos.data = [...this.todosAtivos];
+      this.servicosInativos.data = [...this.todosInativos];
+      return;
+    }
+
+    const filtrados = (list: Servico[]) =>
+      (list ?? []).filter((s) => {
+        const nome = (s.nome ?? '').toLowerCase();
+        return nome.includes(q);
+      });
+
+    this.servicosAtivos.data = this.ordenarServiços(filtrados(this.todosAtivos));
+    this.servicosInativos.data = this.ordenarServiços(filtrados(this.todosInativos));
+  }
+
+  onSearchChange(): void {
+    this.aplicarFiltro();
+  }
+
+  abrirCriar(): void {
     const ref = this.dialog.open(ServicoFormDialogComponent, {
       width: '420px',
       data: { title: 'Novo Serviço' }
@@ -84,7 +133,6 @@ export class ServicoListComponent implements OnInit {
       this.servicoService.criar(result).subscribe({
         next: () => {
           this.snack.open('Serviço criado com sucesso', 'Fechar', { duration: 2500 });
-          this.pageIndex = 0;
           this.carregar();
         },
         error: (err) => {
@@ -95,7 +143,7 @@ export class ServicoListComponent implements OnInit {
     });
   }
 
-  abrirEditar(servico: Servico) {
+  abrirEditar(servico: Servico): void {
     const ref = this.dialog.open(ServicoFormDialogComponent, {
       width: '420px',
       data: {
@@ -120,7 +168,36 @@ export class ServicoListComponent implements OnInit {
     });
   }
 
-  confirmarDelete(servico: Servico) {
+  reativar(servico: Servico): void {
+    if (!servico.id) return;
+
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      width: '420px',
+      data: {
+        title: 'Reativar serviço',
+        message: `Tem certeza que deseja reativar o serviço "${servico.nome}"?`,
+        confirmText: 'Reativar',
+        cancelText: 'Cancelar',
+      },
+    });
+
+    ref.afterClosed().subscribe((confirm: boolean) => {
+      if (!confirm) return;
+
+      this.servicoService.atualizar(servico.id, { ativo: true }).subscribe({
+        next: () => {
+          this.snack.open('Serviço reativado com sucesso', 'Fechar', { duration: 2500 });
+          this.carregar();
+        },
+        error: (err: HttpErrorResponse) => {
+          const msg = (err.error as any)?.message ?? 'Erro ao reativar serviço';
+          this.snack.open(msg, 'Fechar', { duration: 3500 });
+        },
+      });
+    });
+  }
+
+  confirmarDelete(servico: Servico): void {
     const ref = this.dialog.open(ConfirmDialogComponent, {
       width: '420px',
       data: {
@@ -137,11 +214,6 @@ export class ServicoListComponent implements OnInit {
       this.servicoService.deletar(servico.id).subscribe({
         next: () => {
           this.snack.open('Serviço removido (inativado)', 'Fechar', { duration: 2500 });
-
-          // se apagou o último item da página, volta 1 página
-          if (this.dataSource.data.length === 1 && this.pageIndex > 0) {
-            this.pageIndex--;
-          }
           this.carregar();
         },
         error: (err) => {

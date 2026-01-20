@@ -2,8 +2,8 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { forkJoin } from 'rxjs';
 
-import { DashboardService } from './dashboard.service';
-import { OrdemStatusResumo, OrdensPorMes, ServicoMaisUsado } from './dashboard.models';
+import { DashboardService } from './data/dashboard.service';
+import { OrdemStatusResumo, OrdensPorMes, ServicoMaisUsado } from './data/dashboard.models';
 
 type StatCard = { label: string; value: string };
 
@@ -57,20 +57,22 @@ export class DashboardComponent implements OnInit {
   }
 
   private buildCards(): void {
-    const getQtd = (status: string) =>
-      this.ordensStatus.find((s) => s.status === status)?.quantidade ?? 0;
+  const getQtd = (status: string) =>
+    this.ordensStatus.find((s) => s.status === status)?.quantidade ?? 0;
 
-    const emAndamento = getQtd('EM_ANDAMENTO');
-    const concluida = getQtd('CONCLUIDA');
-    const cancelada = getQtd('CANCELADA');
+  const aberta = getQtd('ABERTA');           // ← Adicionar
+  const emAndamento = getQtd('EM_ANDAMENTO');
+  const concluida = getQtd('CONCLUIDA');
+  const cancelada = getQtd('CANCELADA');
 
-    this.cards = [
-      { label: 'Em andamento', value: String(emAndamento) },
-      { label: 'Concluídas', value: String(concluida) },
-      { label: 'Canceladas', value: String(cancelada) },
-      { label: 'Faturamento total', value: this.formatMoney(this.faturamentoTotal) },
-    ];
-  }
+  this.cards = [
+    { label: 'Em aberto', value: String(aberta) },      // ← Adicionar aqui PRIMEIRO
+    { label: 'Em andamento', value: String(emAndamento) },
+    { label: 'Concluídas', value: String(concluida) },
+    { label: 'Canceladas', value: String(cancelada) },
+    { label: 'Faturamento total', value: this.formatMoney(this.faturamentoTotal) },
+  ];
+}
 
   formatMes(mes: string): string {
     // "2025-12" -> "12/2025"

@@ -57,4 +57,16 @@ public interface VeiculoRepository extends JpaRepository<Veiculo, Long> {
      */
     Page<Veiculo> findAllByCliente_IdAndAtivoTrue(Long clienteId, Pageable pageable);
 
+    /**
+     * Retorna todos os veículos (ativos e inativos) associados a um cliente.
+     *
+     * <p>
+     * Permite listar todos os veículos pertencentes ao cliente, incluindo inativos.
+     *
+     * @param clienteId identificador do cliente
+     * @param pageable parâmetros de paginação
+     * @return página de todos os veículos do cliente
+     */
+    Page<Veiculo> findAllByCliente_Id(Long clienteId, Pageable pageable);
+
 }

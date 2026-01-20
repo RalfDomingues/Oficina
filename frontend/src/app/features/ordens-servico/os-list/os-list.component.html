@@ -25,54 +25,54 @@
     </mat-form-field>
   </div>
 
-  <mat-card class="card">
+  <mat-card class="table-card">
     <div class="table-wrap" [class.loading]="loading">
-      <table mat-table [dataSource]="tableData" class="mat-elevation-z0">
+      <table mat-table [dataSource]="tableData" class="table-base mat-elevation-z0">
 
         <ng-container matColumnDef="id">
           <th mat-header-cell *matHeaderCellDef>ID</th>
-          <td mat-cell *matCellDef="let os">#{{ os.id }}</td>
+          <td mat-cell *matCellDef="let ordem">#{{ ordem.id }}</td>
         </ng-container>
 
         <ng-container matColumnDef="cliente">
           <th mat-header-cell *matHeaderCellDef>Cliente</th>
-          <td mat-cell *matCellDef="let os">{{ clienteNome(os.clienteId) }}</td>
+          <td mat-cell *matCellDef="let ordem">{{ clienteNome(ordem.clienteId) }}</td>
         </ng-container>
 
         <ng-container matColumnDef="veiculo">
           <th mat-header-cell *matHeaderCellDef>Veículo</th>
-          <td mat-cell *matCellDef="let os">{{ veiculoModelo(os.veiculoId) }}</td>
+          <td mat-cell *matCellDef="let ordem">{{ veiculoModelo(ordem.veiculoId) }}</td>
         </ng-container>
 
         <ng-container matColumnDef="status">
           <th mat-header-cell *matHeaderCellDef>Status</th>
-          <td mat-cell *matCellDef="let os">
-            <span class="status-pill" [attr.data-status]="os.status">{{ os.status }}</span>
+          <td mat-cell *matCellDef="let ordem">
+            <span class="status-pill" [attr.data-status]="ordem.status">{{ ordem.status }}</span>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="descricao">
           <th mat-header-cell *matHeaderCellDef>Descrição</th>
-          <td mat-cell *matCellDef="let os" class="col-descricao">
-            {{ os.descricao }}
+          <td mat-cell *matCellDef="let ordem" class="col-descricao">
+            {{ ordem.descricao }}
           </td>
         </ng-container>
 
         <ng-container matColumnDef="dataAbertura">
           <th mat-header-cell *matHeaderCellDef>Abertura</th>
-          <td mat-cell *matCellDef="let os">{{ os.dataAbertura | date:'dd/MM/yyyy' }}</td>
+          <td mat-cell *matCellDef="let ordem">{{ ordem.dataAbertura | date:'dd/MM/yyyy' }}</td>
         </ng-container>
 
         <ng-container matColumnDef="acoes">
           <th mat-header-cell *matHeaderCellDef>Ações</th>
-          <td mat-cell *matCellDef="let os" class="actions-cell">
+          <td mat-cell *matCellDef="let ordem" class="actions-cell">
             <div class="actions">
-              <button mat-button (click)="abrirEditar(os)">
+              <button mat-button (click)="abrirEditar(ordem)">
                 <mat-icon>edit</mat-icon>
                 Editar
               </button>
 
-              <button mat-raised-button color="primary" [disabled]="!podeAvancar(os)" (click)="avancarStatus(os)">
+              <button mat-raised-button color="primary" [disabled]="!podeAvancar(ordem)" (click)="avancarStatus(ordem)">
                 Avançar
               </button>
             </div>

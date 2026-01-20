@@ -17,8 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
  * Camada de serviço responsável pelas regras de negócio
  * relacionadas à entidade {@link Veiculo}.
  *
- * <p>Centraliza operações de cadastro, atualização,
- * listagem e exclusão lógica de veículos.</p>
+ * <p>
+ * Centraliza operações de cadastro, atualização,
+ * listagem e exclusão lógica de veículos.
+ * </p>
  */
 @Service
 @RequiredArgsConstructor
@@ -30,7 +32,7 @@ public class VeiculoService {
     /**
      * Cria um novo veículo associado a um cliente existente.
      *
-     * @throws NotFoundException  caso o cliente não exista
+     * @throws NotFoundException caso o cliente não exista
      * @throws BusinessException caso a placa já esteja cadastrada
      */
     @Transactional
@@ -63,10 +65,10 @@ public class VeiculoService {
     }
 
     /**
-     * Lista apenas veículos ativos de forma paginada.
+     * Lista apenas veículos de forma paginada.
      */
     public Page<VeiculoResponseDTO> listar(Pageable pageable) {
-        return veiculoRepository.findAllByAtivoTrue(pageable)
+        return veiculoRepository.findAll(pageable)
                 .map(VeiculoResponseDTO::new);
     }
 
@@ -74,10 +76,9 @@ public class VeiculoService {
      * Lista veículos ativos de um cliente específico.
      */
     public Page<VeiculoResponseDTO> listarPorCliente(Long clienteId, Pageable pageable) {
-        return veiculoRepository.findAllByCliente_IdAndAtivoTrue(clienteId, pageable)
+        return veiculoRepository.findAllByCliente_Id(clienteId, pageable)
                 .map(VeiculoResponseDTO::new);
     }
-
 
     /**
      * Recupera um veículo pelo identificador.
@@ -101,11 +102,16 @@ public class VeiculoService {
         Veiculo veiculo = veiculoRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Veículo não encontrado."));
 
-        if (dto.modelo() != null) veiculo.setModelo(dto.modelo());
-        if (dto.marca() != null) veiculo.setMarca(dto.marca());
-        if (dto.ano() != null) veiculo.setAno(dto.ano());
-        if (dto.tipo() != null) veiculo.setTipo(dto.tipo());
-        if (dto.ativo() != null) veiculo.setAtivo(dto.ativo());
+        if (dto.modelo() != null)
+            veiculo.setModelo(dto.modelo());
+        if (dto.marca() != null)
+            veiculo.setMarca(dto.marca());
+        if (dto.ano() != null)
+            veiculo.setAno(dto.ano());
+        if (dto.tipo() != null)
+            veiculo.setTipo(dto.tipo());
+        if (dto.ativo() != null)
+            veiculo.setAtivo(dto.ativo());
 
         return mapToDTO(veiculoRepository.save(veiculo));
     }

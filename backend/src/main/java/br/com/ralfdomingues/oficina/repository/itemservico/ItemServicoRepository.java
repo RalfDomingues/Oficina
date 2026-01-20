@@ -44,7 +44,7 @@ public interface ItemServicoRepository extends JpaRepository<ItemServico, Long> 
     /**
      * Retorna itens ativos vinculados a uma ordem de serviço, de forma paginada.
      *
-     * @param ordemId identificador da ordem
+     * @param ordemId  identificador da ordem
      * @param pageable parâmetros de paginação
      * @return página de itens ativos da ordem
      */

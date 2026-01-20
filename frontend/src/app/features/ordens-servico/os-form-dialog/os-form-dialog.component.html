@@ -12,8 +12,8 @@
                     <mat-label>Cliente</mat-label>
                     <mat-select formControlName="clienteId">
                         <mat-option *ngIf="loadingClientes" [value]="null" disabled>Carregando clientes...</mat-option>
-                        <mat-option *ngFor="let c of clientes" [value]="c.id">
-                            {{ c.nome }} (ID: {{ c.id }})
+                        <mat-option *ngFor="let cliente of clientes" [value]="cliente.id">
+                            {{ cliente.nome }} (ID: {{ cliente.id }})
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -26,8 +26,8 @@
                         <mat-option *ngIf="!loadingVeiculos && veiculosFiltrados.length === 0" [value]="null" disabled>
                             Nenhum veículo para este cliente
                         </mat-option>
-                        <mat-option *ngFor="let v of veiculosFiltrados" [value]="v.id">
-                            {{ v.modelo }} (ID: {{ v.id }})
+                        <mat-option *ngFor="let veiculo of veiculosFiltrados" [value]="veiculo.id">
+                            {{ veiculo.modelo }} (ID: {{ veiculo.id }})
                         </mat-option>
                     </mat-select>
                     <mat-hint>Ao trocar o cliente, você precisa selecionar um veículo do cliente.</mat-hint>
@@ -70,7 +70,7 @@
                 <mat-form-field appearance="outline" class="field">
                     <mat-label>Status</mat-label>
                     <mat-select formControlName="status">
-                        <mat-option *ngFor="let s of statusesEdit" [value]="s">{{ s }}</mat-option>
+                        <mat-option *ngFor="let status of statusesEdit" [value]="status">{{ status }}</mat-option>
                     </mat-select>
                 </mat-form-field>
 

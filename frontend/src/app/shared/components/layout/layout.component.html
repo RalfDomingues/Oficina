@@ -25,12 +25,16 @@
 
         <span class="spacer"></span>
 
-        <div class="user-box">
-          <span class="user-pill">Acesso: {{ perfil }}</span>
-          <span class="user-pill" *ngIf="user?.nome">Usuário: {{ user?.nome }}</span>
-        </div>
+        <div class="user-section">
+          <div class="user-info">
+            <span class="user-name">{{ user?.nome }}</span>
+            <span class="user-role">{{ perfil }}</span>
+          </div>
 
-        <button mat-button (click)="logout()">Sair</button>
+          <button mat-icon-button (click)="logout()" class="logout-btn" matTooltip="Sair">
+            <mat-icon>logout</mat-icon>
+          </button>
+        </div>
       </mat-toolbar-row>
     </mat-toolbar>
 

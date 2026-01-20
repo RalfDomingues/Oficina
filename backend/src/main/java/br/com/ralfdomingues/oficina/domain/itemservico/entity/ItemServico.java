@@ -11,7 +11,8 @@ import java.math.BigDecimal;
  * Entidade que representa um Item de Serviço em uma Ordem de Serviço.
  *
  * <p>
- * Armazena informações do serviço realizado, quantidade, valor unitário e status de ativo.
+ * Armazena informações do serviço realizado, quantidade, valor unitário e
+ * status de ativo.
  * </p>
  */
 @Entity
@@ -44,7 +45,8 @@ public class ItemServico {
     private boolean ativo = true;
 
     /**
-     * Construtor parcial para criar um item de serviço com ordem, serviço, quantidade e valor unitário.
+     * Construtor parcial para criar um item de serviço com ordem, serviço,
+     * quantidade e valor unitário.
      * O status ativo é definido como true por padrão.
      */
     public ItemServico(OrdemServico ordem, Servico servico, Integer quantidade, BigDecimal valorUnitario) {
@@ -55,6 +57,4 @@ public class ItemServico {
         this.ativo = true;
     }
 
-
 }
-
