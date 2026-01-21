@@ -8,7 +8,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * Classe principal da aplicação Oficina.
  *
  * <p>
- * Responsável por iniciar a aplicação Spring Boot e habilitar o agendamento de tarefas.
+ * Responsável por iniciar a aplicação Spring Boot e habilitar o agendamento de
+ * tarefas.
  * </p>
  */
 @EnableScheduling // Habilita suporte a tarefas agendadas
