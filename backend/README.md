@@ -73,12 +73,22 @@ A autenticação é feita via **JWT**, sem uso de sessão.
 ### Exemplo de controle de acesso:
 
 Exemplo de controle de acesso:
-Endpoint	                 ADMIN	SECRETARIA	MECÂNICO
-/usuarios/**	                ✅	      ❌	   ❌
-/clientes/**	                ✅	      ✅	   ❌
-/servicos/** (GET)	            ✅	      ✅	   ✅
-/servicos/** (POST/PUT/DELETE)	✅	      ❌	   ❌
-/ordens-servico/**	            ✅	      ✅	  Parcial
+
+| Endpoint                               | ADMIN | SECRETARIA | MECÂNICO |
+|----------------------------------------|:-----:|:----------:|:--------:|
+| `/auth/**`                             |  ✅   |     ✅     |   ✅     |
+| `/usuarios/**`                         |  ✅   |     ❌     |   ❌     |
+| `/dashboard/**`                        |  ✅   |     ✅     |   ❌     |
+| `/clientes/**` (GET)                   |  ✅   |     ✅     |   ✅     |
+| `/clientes/**` (POST / PUT / DELETE)   |  ✅   |     ✅     |   ❌     |
+| `/veiculos/**` (GET)                   |  ✅   |     ✅     |   ✅     |
+| `/veiculos/**` (POST / PUT / DELETE)   |  ✅   |     ✅     |   ❌     |
+| `/servicos/**` (GET)                   |  ✅   |     ✅     |   ✅     |
+| `/servicos/**` (POST / PUT / DELETE)   |  ✅   |     ✅     |   ❌     |
+| `/itens-servico/**`                    |  ✅   |     ✅     |   ✅     |
+| `/ordens-servico/**`                   |  ✅   |     ✅     |   ✅     |
+
+
 
 ---
 
@@ -225,11 +235,5 @@ Os endpoints podem ser testados via:
 
 ---
 
-## 👨‍💻 Autor
-
-**Ralf Iran Domingues**
-Projeto desenvolvido para fins acadêmicos e evolução profissional.
-
----
 
 🚀 *Qualquer melhoria futura pode ser integrada facilmente à arquitetura atual.*

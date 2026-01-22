@@ -14,44 +14,31 @@ frontend/node_modules/
 npm-debug.log*
 yarn-error.log*
 
+# System
+.DS_Store
+Thumbs.db
+
 ############################
 # BACKEND (Spring Boot / Java)
 ############################
 
-# Build
+# Maven / Gradle build
 backend/target/
 backend/build/
 
-# Maven Wrapper
+# Maven wrapper
 backend/.mvn/wrapper/maven-wrapper.jar
 
-############################
-# ENV / SECRETS (NUNCA SUBIR)
-############################
-
-.env
-.env.*
-*.conf
-
-# Spring profiles
-application.properties
-application-*.yml
-application-*.properties
-
-############################
-# LOGS
-############################
-
-logs/
+# Logs
 backend/logs/
 *.log
 *.txt
 
 ############################
-# IDEs / EDITORS
+# IDEs / Editors
 ############################
 
-# IntelliJ IDEA
+# IntelliJ
 .idea/
 *.iws
 *.iml
@@ -78,14 +65,20 @@ backend/logs/
 /.nb-gradle/
 
 ############################
-# SYSTEM
+# ENV / SECRETS (NUNCA SUBIR)
 ############################
 
-.DS_Store
-Thumbs.db
+.env
+.env.*
+*.conf
+
+# Spring profiles
+application.properties
+application-*.yml
+application-*.properties
 
 ############################
-# MISC
+# Misc
 ############################
 
 .sass-cache/
@@ -93,9 +86,3 @@ connect.lock
 libpeerconnection.log
 testem.log
 typings/
-
-############################
-# DOCUMENTATION
-############################
-
-HELP.md

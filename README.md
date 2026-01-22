@@ -1,235 +1,156 @@
-# 🚗 Oficina API
+# 🚗 Sistema de Gestão de Oficina Mecânica
 
-API REST para gerenciamento de uma **oficina mecânica**, desenvolvida em **Java + Spring Boot**, com foco em **boas práticas**, **arquitetura limpa**, **segurança com JWT**, **controle de acesso por perfil**, **logs de auditoria** e **dashboards gerenciais**.
+Sistema **Full Stack** para gerenciamento de uma **oficina mecânica**, composto por uma **API REST robusta** e uma **aplicação web moderna**, desenvolvido com foco em **boas práticas**, **segurança**, **organização de código**, **controle de acesso por perfil** e **análise gerencial**.
+
+O projeto simula um cenário real de mercado, cobrindo desde a **operação diária da oficina** até **dashboards estratégicos para tomada de decisão**.
 
 ---
 
-## 📌 Visão Geral
+## 📌 Visão Geral do Sistema
 
-Este projeto simula um sistema real de oficina mecânica, contemplando:
+O sistema permite:
 
-* Cadastro de clientes, veículos e serviços
-* Gestão de ordens de serviço
-* Controle de usuários e perfis
-* Autenticação e autorização com JWT (stateless)
-* Logs de auditoria por ação do usuário
-* Dashboards para análise operacional
+- Autenticação segura de usuários por perfil
+- Gestão completa de clientes, veículos, serviços e ordens de serviço
+- Controle de acesso baseado em permissões
+- Registro e auditoria de ações do sistema
+- Visualização de indicadores operacionais e gerenciais
+- Integração total entre backend e frontend via API REST
+
+---
+
+## 🧱 Arquitetura Geral
+
+O projeto segue uma arquitetura **desacoplada**, dividida em duas camadas principais:
+
+### 🔹 Backend — API REST
+
+Responsável por:
+- Regras de negócio
+- Segurança e autenticação
+- Persistência de dados
+- Logs e auditoria
+- Dashboards e análises
+
+### 🔹 Frontend — Aplicação Web
+
+Responsável por:
+- Interface do usuário
+- Experiência por perfil
+- Consumo da API
+- Controle de sessão e permissões
+- Visualização de dados e indicadores
+
+📡 A comunicação ocorre exclusivamente via **HTTP + JSON**, utilizando **JWT** para autenticação.
+
+---
+
+## 👥 Perfis de Acesso
+
+O sistema trabalha com **controle de acesso por perfil**, aplicado tanto no backend quanto no frontend:
+
+| Perfil | Descrição |
+|------|-----------|
+| **ADMIN** | Acesso total ao sistema |
+| **SECRETARIA** | Operações administrativas e gerenciais |
+| **MECÂNICO** | Consulta e execução de ordens de serviço |
+
+🔐 **Rotas, ações e elementos visuais são exibidos dinamicamente conforme o perfil autenticado.**
+
+---
+
+## 🖥️ Funcionalidades Principais
+
+- Autenticação com JWT (stateless)
+- Dashboard com indicadores operacionais
+- CRUD completo de:
+  - Usuários
+  - Clientes
+  - Veículos
+  - Serviços
+  - Ordens de Serviço
+- Associação de serviços às ordens
+- Paginação e formulários reativos
+- Tratamento centralizado de erros
+- Logout automático por sessão expirada
+- Logs de auditoria e segurança
 
 ---
 
 ## 🛠️ Tecnologias Utilizadas
 
-* **Java 21**
-* **Spring Boot / Spring Framework **
-* **Spring Security** (JWT)
-* **Spring Data JPA**
-* **Hibernate**
-* **PostgreSQL**
-* **Maven**
-* **SLF4J + Logback**
+### Backend
+- Java 21
+- Spring Boot
+- Spring Security (JWT)
+- Spring Data JPA / Hibernate
+- PostgreSQL
+- Maven
+- SLF4J + Logback
+
+### Frontend
+- Angular 19
+- TypeScript
+- Angular Material
+- RxJS
+- HTML + SCSS
 
 ---
 
-## 🏗️ Arquitetura do Projeto
+## 📊 Segurança e Auditoria
 
-O projeto segue uma separação clara de responsabilidades:
-
-```
-br.com.ralfdomingues.oficina
-├── config
-│   ├── security        # Configurações de segurança (JWT, filtros, handlers)
-├── controller          # Controllers REST
-├── domain
-│   ├── auth            # Autenticação
-│   ├── usuario         # Usuários e perfis
-│   ├── cliente         # Clientes
-│   ├── veiculo         # Veículos
-│   ├── servico         # Serviços
-│   ├── ordemservico    # Ordens de serviço
-├── infra
-│   ├── logging         # Logs e limpeza automática
-├── repository          # Repositórios JPA
-├── exception           # Exceções customizadas
-```
+- Autenticação via JWT
+- Autorização por perfil
+- Interceptores de requisição no frontend
+- Guards de rota
+- Registro de:
+  - Logins
+  - Falhas de autenticação
+  - Acessos negados
+  - Uso de endpoints protegidos
+- Limpeza automática de logs antigos
 
 ---
 
-## 🔐 Segurança e Perfis de Acesso
+## ▶️ Execução do Projeto
 
-A autenticação é feita via **JWT**, sem uso de sessão.
+### Pré-requisitos
+- Java 21
+- Node.js + npm
+- PostgreSQL
 
-### Perfis disponíveis:
-
-* **ADMIN**
-
-    * Acesso total ao sistema
-* **SECRETARIA**
-
-    * Operações administrativas
-* **MECANICO**
-
-    * Execução e consulta de ordens de serviço
-
-### Exemplo de controle de acesso:
-
-Exemplo de controle de acesso:
-Endpoint	                 ADMIN	SECRETARIA	MECÂNICO
-/usuarios/**	                ✅	      ❌	   ❌
-/clientes/**	                ✅	      ✅	   ❌
-/servicos/** (GET)	            ✅	      ✅	   ✅
-/servicos/** (POST/PUT/DELETE)	✅	      ❌	   ❌
-/ordens-servico/**	            ✅	      ✅	  Parcial
-
----
-
-## 🔑 Autenticação
-
-### Login
-
-**POST** `/auth/login`
-
-```json
-{
-  "email": "admin@oficina.com",
-  "senha": "123456"
-}
-```
-
-### Resposta
-
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "id": 1,
-  "nome": "Admin Oficina",
-  "email": "admin@oficina.com",
-  "perfil": "ADMIN"
-}
-```
-
-O token deve ser enviado nas próximas requisições:
-
-```
-Authorization: Bearer <token>
-```
-
----
-
-## 📊 Dashboards
-
-A API disponibiliza endpoints de dashboard para análise gerencial, como:
-
-* Total de ordens de serviço
-* Ordens por status
-* Ordens por mês
-* Faturamento estimado
-
-Acesso restrito a:
-
-* **ADMIN**
-* **SECRETARIA**
-
----
-
-## 🧾 Logs do Sistema
-
-O sistema registra automaticamente:
-
-* Login com sucesso
-* Falha de login (senha inválida, usuário desativado)
-* Acesso negado por perfil
-* Tentativas sem autenticação
-* Chamadas a endpoints protegidos
-
-### 📂 Local dos logs
-
-```
-/logs
-  └── log-dd-MM-yyyy.txt
-```
-
-### ♻️ Limpeza automática
-
-* Logs com mais de **7 dias** são removidos
-* A limpeza ocorre **na inicialização da aplicação**
-
----
-
-## ⚙️ Configuração do Projeto
-
-### 1️⃣ Banco de Dados
-
-Configure o PostgreSQL e crie o banco:
-
-```sql
-CREATE DATABASE oficina;
-```
-
-### 2️⃣ Configurações locais
-
-Crie o arquivo:
-
-```
-application-local.yml
-```
-
-Exemplo:
-
-```yaml
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/oficina
-    username: postgres
-    password: postgres
-
-security:
-  jwt:
-    secret: SUA_SECRET_AQUI
-    expiration: 86400000
-```
-
-⚠️ **Nunca versionar esse arquivo**
-
----
-
-## ▶️ Como Executar
-
+### Backend
 ```bash
 mvn clean install
 mvn spring-boot:run
-```
+````
 
-A API estará disponível em:
+
+### API disponível em:
 
 ```
 http://localhost:8080
 ```
 
----
+### Frontend
+```
+npm install
+npm start
+```
 
-## 🧪 Testes
+### Aplicação disponível em:
+```
+http://localhost:4200
+```
 
-Os endpoints podem ser testados via:
+⚠️ A API precisa estar em execução para o frontend funcionar corretamente.
 
-* Postman
-* Insomnia
-* Swagger (se configurado futuramente)
+## 🎯 Objetivo do Projeto
 
----
+Demonstrar domínio em arquitetura full stack
 
-## 📌 Observações Finais
+Aplicar boas práticas de segurança, organização e escalabilidade
 
-* Projeto estruturado para fácil manutenção
-* Ideal para estudos de **Spring Boot + Segurança**
-* Código organizado pensando em ambientes reais
+Simular um sistema real utilizado em ambiente profissional
 
----
-
-## 👨‍💻 Autor
-
-**Ralf Iran Domingues**
-Projeto desenvolvido para fins acadêmicos e evolução profissional.
-
----
-
-🚀 *Qualquer melhoria futura pode ser integrada facilmente à arquitetura atual.*
+Servir como projeto de portfólio acadêmico e profissional
